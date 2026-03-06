@@ -232,14 +232,74 @@
     }
 
     // ─── BROWSER-SIDE REDDIT FETCHER ────────────────────────────────────
-    // Fetches through the Vercel proxy API function (api/search.js)
-    // which forwards to Reddit. This avoids CORS issues.
+    // Tries multiple methods to reach Reddit's JSON API:
+    // 1. Direct fetch (works if Reddit allows CORS from this origin)
+    // 2. CORS proxy fallbacks
+
+    const CORS_PROXIES = [
+      (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    ];
+
+    let workingProxyIndex = null; // Cache which proxy works
 
     async function fetchRedditViaProxy(keyword, sort, time) {
-      const params = new URLSearchParams({ q: keyword, sort, t: time, limit: "20" });
-      const res = await fetch(`/api/search?${params}`);
-      if (!res.ok) throw new Error(`API ${res.status}`);
-      return res.json();
+      const params = new URLSearchParams({ q: keyword, sort, t: time, limit: "20", type: "link" });
+      const redditUrl = `https://www.reddit.com/search.json?${params}`;
+
+      // If we already found a working method, use it
+      if (workingProxyIndex !== null) {
+        const url = workingProxyIndex === -1 ? redditUrl : CORS_PROXIES[workingProxyIndex](redditUrl);
+        const res = await fetch(url, { headers: workingProxyIndex === -1 ? { "Accept": "application/json" } : {} });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data?.data?.children) return data;
+        throw new Error("Invalid response");
+      }
+
+      // Try direct fetch first
+      try {
+        const res = await fetch(redditUrl, { headers: { "Accept": "application/json" } });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.data?.children) {
+            workingProxyIndex = -1;
+            console.log("[Fetcher] Direct Reddit access works!");
+            return data;
+          }
+        }
+      } catch (e) { /* CORS blocked — try proxies */ }
+
+      // Try each CORS proxy
+      for (let i = 0; i < CORS_PROXIES.length; i++) {
+        try {
+          const proxyUrl = CORS_PROXIES[i](redditUrl);
+          const res = await fetch(proxyUrl);
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.data?.children) {
+              workingProxyIndex = i;
+              console.log(`[Fetcher] Proxy ${i} works!`);
+              return data;
+            }
+          }
+        } catch (e) { continue; }
+      }
+
+      // Also try the Vercel server proxy as last resort
+      try {
+        const res = await fetch(`/api/search?${params}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.data?.children) {
+            workingProxyIndex = 99; // special flag
+            return data;
+          }
+        }
+      } catch (e) {}
+
+      throw new Error("All fetch methods failed");
     }
 
     function processRawPost(d, keyword, category) {
@@ -344,7 +404,7 @@
           .sort((a, b) => b.validationScore - a.validationScore);
 
         if (sorted.length === 0 && errors > 0) {
-          setFetchError(`All ${errors} keyword searches failed. This usually means Reddit is blocking requests from Vercel's servers. Try running locally instead (see README).`);
+          setFetchError(`Searched ${allKeywords.length} keywords but couldn't reach Reddit. Try refreshing in a minute — Reddit may be rate-limiting. If this persists, try running locally (npm start).`);
         } else if (sorted.length === 0) {
           setFetchError("No posts found. Reddit may be rate-limiting. Wait a minute and try refreshing.");
         }
