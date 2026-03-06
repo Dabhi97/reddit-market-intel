@@ -60,7 +60,6 @@
     .pill { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
     .pill.active { border-color: var(--accent3); background: rgba(255,209,102,0.09); color: var(--accent3); }
     .clear-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; color: var(--hot); font-size: 10px; cursor: pointer; font-family: inherit; font-weight: 600; }
-
     .results-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px; font-size: 11px; color: var(--text-dim); }
 
     .post-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.25s ease; overflow: hidden; margin-bottom: 8px; }
@@ -92,28 +91,28 @@
     .empty-state { text-align: center; padding: 50px 20px; background: var(--card); border-radius: 12px; border: 1px solid var(--border); }
     .empty-icon { font-size: 28px; margin-bottom: 10px; }
     .empty-title { font-size: 14px; color: var(--white); font-weight: 600; margin-bottom: 6px; }
-    .empty-desc { font-size: 12px; color: var(--text-dim); margin-bottom: 16px; max-width: 360px; margin-left: auto; margin-right: auto; }
+    .empty-desc { font-size: 12px; color: var(--text-dim); margin-bottom: 16px; max-width: 400px; margin-left: auto; margin-right: auto; line-height: 1.6; }
     .empty-btn { padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
 
-    /* Loading */
     .loading { text-align: center; padding: 60px 20px; }
     .loading-spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 13px; color: var(--text-dim); }
     .loading-sub { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+    .loading-progress { margin-top: 16px; max-width: 300px; margin-left: auto; margin-right: auto; }
+    .progress-track { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.3s ease; }
+    .progress-label { margin-top: 6px; font-size: 10px; color: var(--text-muted); }
 
-    /* Refresh button */
     .refresh-btn { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; color: var(--accent); font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s ease; display: flex; align-items: center; gap: 6px; }
     .refresh-btn:hover { border-color: var(--accent); background: rgba(99,102,241,0.08); }
     .refresh-btn.loading { opacity: 0.5; pointer-events: none; }
 
-    /* Modal */
     .modal-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); }
     .modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 36px 32px; max-width: 520px; width: 90%; }
     .modal-sm { padding: 28px; max-width: 440px; }
-    .modal-cta { width: 100%; padding: 12px 0; border-radius: 10px; border: none; cursor: pointer; background: linear-gradient(135deg, var(--accent), #818cf8); color: var(--white); font-size: 14px; font-weight: 700; font-family: inherit; letter-spacing: 0.02em; }
+    .modal-cta { width: 100%; padding: 12px 0; border-radius: 10px; border: none; cursor: pointer; background: linear-gradient(135deg, var(--accent), #818cf8); color: var(--white); font-size: 14px; font-weight: 700; font-family: inherit; }
     .modal-close { width: 100%; margin-top: 16px; padding: 10px 0; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
-
     .score-bar-track { height: 6px; border-radius: 3px; background: var(--bg); overflow: hidden; margin-bottom: 4px; }
     .score-bar-fill { height: 100%; border-radius: 3px; }
 
@@ -121,31 +120,30 @@
     .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; max-width: 1300px; margin: 0 auto; font-size: 10px; color: var(--text-muted); }
     .footer-link { background: none; border: none; color: var(--text-muted); font-size: 10px; cursor: pointer; font-family: inherit; text-decoration: underline; }
 
-    /* Keywords page */
     .kw-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 10px; }
     .kw-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
     .kw-title { display: flex; gap: 10px; align-items: center; }
-    .kw-icon { font-size: 22px; }
     .kw-name { font-size: 14px; font-weight: 700; color: var(--white); }
     .kw-desc { margin-top: 3px; font-size: 11px; color: var(--text-dim); }
-    .kw-stats { text-align: right; }
     .kw-avg { font-size: 18px; font-weight: 800; }
     .kw-count { font-size: 9px; color: var(--text-dim); }
     .kw-chips { display: flex; gap: 6px; flex-wrap: wrap; }
     .kw-chip { font-size: 11px; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; background: rgba(99,102,241,0.04); color: var(--accent); border: 1px solid rgba(99,102,241,0.13); font-weight: 500; transition: all 0.15s ease; }
     .kw-chip:hover { background: rgba(99,102,241,0.12); border-color: var(--accent); }
 
-    /* Subreddits page */
     .sub-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .sub-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; cursor: pointer; font-family: inherit; text-align: left; position: relative; overflow: hidden; transition: all 0.15s ease; }
     .sub-card:hover { border-color: var(--border-active); }
     .sub-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 0 2px 0 0; }
-    .sub-inner { display: flex; justify-content: space-between; align-items: flex-start; }
     .sub-name { font-size: 15px; font-weight: 700; color: var(--white); }
     .sub-focus { margin-top: 4px; font-size: 11px; color: var(--text-dim); line-height: 1.5; }
     .sub-members { margin-top: 6px; font-size: 10px; color: var(--text-muted); }
     .sub-weight { font-size: 22px; font-weight: 800; color: var(--accent); }
     .sub-weight-label { margin-top: 2px; font-size: 9px; color: var(--text-dim); letter-spacing: 0.05em; }
+
+    .error-box { background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.2); border-radius: 10px; padding: 16px 20px; margin-bottom: 14px; }
+    .error-title { font-size: 12px; font-weight: 700; color: var(--hot); margin-bottom: 4px; }
+    .error-msg { font-size: 11px; color: var(--text-dim); line-height: 1.6; }
 
     @media (max-width: 768px) {
       .kpi-row { flex-direction: column; }
@@ -165,14 +163,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 
   <script type="text/babel">
-    const { useState, useMemo, useEffect, useCallback } = React;
+    const { useState, useMemo, useEffect, useCallback, useRef } = React;
 
-    // ─── CONFIG (mirrors server config) ─────────────────────────────────
+    // ─── CONFIG ─────────────────────────────────────────────────────────
     const KEYWORD_CATEGORIES = {
-      "Direct Idea Signals": { icon: "💡", desc: "People explicitly sharing startup concepts", keywords: ["startup idea","ai startup","idea to implement","business idea","saas idea","app idea","side project idea","micro saas"] },
-      "Problem Signals": { icon: "🔥", desc: "Real pain points — highest quality opportunities", keywords: ["I wish there was","someone should build","why isn't there","I'd pay for","frustrated with","looking for a tool","there should be","can't find a good"] },
-      "Validation Signals": { icon: "✅", desc: "Founders testing ideas — see what gets traction", keywords: ["would you pay for","is this a good idea","validate my idea","looking for feedback","roast my startup","need beta testers"] },
-      "Market Gap Signals": { icon: "🎯", desc: "Dissatisfaction with existing solutions", keywords: ["alternative to","better than","replacement for","competitor to","open source alternative","cheaper than"] },
+      "Direct Idea Signals": { icon: "💡", desc: "People explicitly sharing startup concepts", keywords: ["startup idea","ai startup","business idea","saas idea","app idea","micro saas"] },
+      "Problem Signals": { icon: "🔥", desc: "Real pain points — highest quality opportunities", keywords: ["I wish there was","someone should build","why isn't there","I'd pay for","frustrated with","looking for a tool"] },
+      "Validation Signals": { icon: "✅", desc: "Founders testing ideas — see what gets traction", keywords: ["validate my idea","roast my startup","need beta testers","looking for feedback"] },
+      "Market Gap Signals": { icon: "🎯", desc: "Dissatisfaction with existing solutions", keywords: ["alternative to","open source alternative","cheaper than","replacement for"] },
     };
 
     const SUBREDDITS = [
@@ -190,23 +188,23 @@
 
     const CLUSTERS = [
       { name: "AI/Automation Tools", icon: "🤖", terms: ["ai ","artificial intelligence","machine learning","automat","chatgpt","llm","gpt","neural","nlp"] },
-      { name: "Developer Tools", icon: "⚙️", terms: ["developer","dev tool","api","sdk","open source","github","code","programming","i18n","localization"] },
-      { name: "Finance/Fintech", icon: "💳", terms: ["fintech","finance","payment","invoice","banking","expense","tax","accounting","invest","factoring"] },
+      { name: "Developer Tools", icon: "⚙️", terms: ["developer","dev tool","api","sdk","open source","github","code","programming","i18n"] },
+      { name: "Finance/Fintech", icon: "💳", terms: ["fintech","finance","payment","invoice","banking","expense","tax","accounting","invest"] },
       { name: "Health & Wellness", icon: "💪", terms: ["health","fitness","wellness","workout","medical","wearable","bloodwork","supplement","gym"] },
-      { name: "Education/Learning", icon: "📚", terms: ["education","learning","study","course","quiz","teach","tutor","student","lecture"] },
+      { name: "Education/Learning", icon: "📚", terms: ["education","learning","study","course","quiz","teach","tutor","student"] },
       { name: "Creator Economy", icon: "🎨", terms: ["creator","youtube","content","social media","influencer","podcast","newsletter","social proof"] },
       { name: "SMB/Operations", icon: "🏪", terms: ["small business","smb","crm","warehouse","inventory","operations","service business","agency"] },
       { name: "Marketplace/Platform", icon: "🏛️", terms: ["marketplace","platform","matching","connect","freelancer","co-founder"] },
       { name: "Productivity", icon: "⚡", terms: ["productivity","project management","scheduling","calendar","meeting","notion","airtable","task","jira"] },
-      { name: "Data & Analytics", icon: "📊", terms: ["analytics","data","intelligence","dashboard","insights","monitoring","competitive","tracking","roadmap"] },
+      { name: "Data & Analytics", icon: "📊", terms: ["analytics","data","intelligence","dashboard","insights","monitoring","competitive","tracking"] },
     ];
 
     const CLUSTER_ICON_MAP = {};
     CLUSTERS.forEach(c => CLUSTER_ICON_MAP[c.name] = c.icon);
 
-    const POSITIVE_SIGNALS = ["i'd pay","shut up and take my money","would pay","need this","please build","take my money","game changer","brilliant","genius","love this","great idea","underserved","huge opportunity"];
-    const NEGATIVE_SIGNALS = ["already exists","been done","won't work","bad idea","oversaturated","too crowded","dead market","waste of time"];
-    const COMPETITOR_SIGNALS = ["already exists","competitor","similar to","alternative","but better","does this but","tried","currently using"];
+    const POS_SIGNALS = ["i'd pay","shut up and take my money","would pay","need this","please build","take my money","game changer","brilliant","love this","great idea","underserved","huge opportunity","seriously need","desperate"];
+    const NEG_SIGNALS = ["already exists","been done","won't work","bad idea","oversaturated","too crowded","dead market","waste of time"];
+    const COMP_SIGNALS = ["already exists","competitor","similar to","alternative","but better","does this but","currently using","tried"];
 
     // ─── SCORING ────────────────────────────────────────────────────────
     function scorePost(post) {
@@ -233,126 +231,136 @@
       return Math.floor(days/30) + "mo ago";
     }
 
-    // ─── PROCESS RAW REDDIT DATA ────────────────────────────────────────
-    function processRedditPost(raw, searchKeyword, category) {
-      const d = raw.data;
-      const text = (d.title + " " + (d.selftext || "")).toLowerCase();
+    // ─── BROWSER-SIDE REDDIT FETCHER ────────────────────────────────────
+    // Fetches through the Vercel proxy API function (api/search.js)
+    // which forwards to Reddit. This avoids CORS issues.
 
-      // Sentiment
-      let pos = 0, neg = 0, hasComp = false;
-      POSITIVE_SIGNALS.forEach(s => { if (text.includes(s)) pos++; });
-      NEGATIVE_SIGNALS.forEach(s => { if (text.includes(s)) neg++; });
-      COMPETITOR_SIGNALS.forEach(s => { if (text.includes(s)) hasComp = true; });
-      const total = pos + neg;
-      let sent = total === 0 ? ((d.upvote_ratio||0.5) >= 0.7 ? 0.65 : 0.45) : Math.min(0.95, Math.max(0.15, pos/total));
+    async function fetchRedditViaProxy(keyword, sort, time) {
+      const params = new URLSearchParams({ q: keyword, sort, t: time, limit: "20" });
+      const res = await fetch(`/api/search?${params}`);
+      if (!res.ok) throw new Error(`API ${res.status}`);
+      return res.json();
+    }
+
+    function processRawPost(d, keyword, category) {
+      const text = `${d.title} ${d.selftext || ""}`.toLowerCase();
+
+      let posH = 0, negH = 0, hasComp = false;
+      POS_SIGNALS.forEach(s => { if (text.includes(s)) posH++; });
+      NEG_SIGNALS.forEach(s => { if (text.includes(s)) negH++; });
+      COMP_SIGNALS.forEach(s => { if (text.includes(s)) hasComp = true; });
+      const tot = posH + negH;
+      let sent = tot === 0 ? ((d.upvote_ratio||0.5) >= 0.7 ? 0.65 : 0.45) : Math.min(0.95, Math.max(0.15, posH/tot));
       if ((d.upvote_ratio||0.5) >= 0.9) sent = Math.min(0.95, sent + 0.1);
 
-      // Cluster
       let cluster = "Other";
       for (const cl of CLUSTERS) {
         if (cl.terms.some(t => text.includes(t))) { cluster = cl.name; break; }
       }
 
       const post = {
-        id: d.id,
-        title: d.title,
-        subreddit: "r/" + d.subreddit,
-        author: "u/" + d.author,
+        id: d.id, title: d.title, subreddit: "r/" + d.subreddit, author: "u/" + d.author,
         date: new Date(d.created_utc * 1000).toISOString().split("T")[0],
-        upvotes: d.ups || d.score || 0,
-        comments: d.num_comments || 0,
+        upvotes: d.ups || d.score || 0, comments: d.num_comments || 0,
         url: "https://reddit.com" + d.permalink,
         snippet: d.selftext ? d.selftext.substring(0, 250) + (d.selftext.length > 250 ? "..." : "") : "",
-        sentimentPositive: Math.round(sent * 100) / 100,
-        hasCompetitors: hasComp,
-        cluster,
-        category,
-        keywordMatch: searchKeyword,
+        sentimentPositive: Math.round(sent * 100) / 100, hasCompetitors: hasComp,
+        cluster, category, keywordMatch: keyword,
       };
       post.validationScore = scorePost(post);
       return post;
     }
 
-    // ─── DATA FETCHER ───────────────────────────────────────────────────
-    async function fetchFromServer(options = {}) {
-      const { sort = "top", time = "month", quick = true, refresh = false } = options;
-      const params = new URLSearchParams({ sort, time, quick: String(quick) });
-      if (refresh) params.set("refresh", "true");
-
-      const res = await fetch("/api/fetch?" + params);
-      if (!res.ok) throw new Error("Server error: " + res.status);
-      return res.json();
-    }
-
-    // Fallback: fetch directly from Reddit (for standalone use)
-    async function fetchDirectFromReddit(options = {}) {
-      const { sort = "top", time = "month" } = options;
-      const allPosts = new Map();
-      const keywords = [];
-      for (const [cat, data] of Object.entries(KEYWORD_CATEGORIES)) {
-        for (const kw of data.keywords.slice(0, 2)) { // Limit for direct fetch
-          keywords.push({ keyword: kw, category: cat });
-        }
-      }
-
-      for (const { keyword, category } of keywords) {
-        try {
-          const url = `/api/reddit/search?q=${encodeURIComponent(keyword)}&sort=${sort}&t=${time}&limit=15`;
-          const res = await fetch(url);
-          if (!res.ok) continue;
-          const data = await res.json();
-          for (const raw of (data?.data?.children || [])) {
-            if (raw.kind !== "t3" || allPosts.has(raw.data.id)) continue;
-            allPosts.set(raw.data.id, processRedditPost(raw, keyword, category));
-          }
-          await new Promise(r => setTimeout(r, 1500));
-        } catch (e) { console.warn("Fetch error:", e); }
-      }
-
-      const posts = Array.from(allPosts.values()).sort((a,b) => b.validationScore - a.validationScore);
-      return { posts, meta: { totalFetched: posts.length, fetchedAt: new Date().toISOString(), sort, time } };
-    }
-
-    // ─── MAIN APP ───────────────────────────────────────────────────────
+    // ─── APP ────────────────────────────────────────────────────────────
     function App() {
       const [view, setView] = useState("dashboard");
       const [posts, setPosts] = useState([]);
       const [meta, setMeta] = useState(null);
       const [loading, setLoading] = useState(true);
-      const [loadingMsg, setLoadingMsg] = useState("Connecting to Reddit...");
+      const [progress, setProgress] = useState({ done: 0, total: 0, current: "" });
+      const [fetchError, setFetchError] = useState(null);
       const [filters, setFilters] = useState({ cluster: "All", category: "All", subreddit: "All", sort: "validationScore", time: "all", search: "", minScore: 0 });
       const [selectedPost, setSelectedPost] = useState(null);
       const [saved, setSaved] = useState(new Set());
       const [showSavedOnly, setShowSavedOnly] = useState(false);
       const [showOnboarding, setShowOnboarding] = useState(true);
       const [showScoreGuide, setShowScoreGuide] = useState(false);
-      const [fetchSort, setFetchSort] = useState("top");
-      const [fetchTime, setFetchTime] = useState("month");
 
       const updateFilter = useCallback((k, v) => setFilters(f => ({...f, [k]: v})), []);
       const clearFilters = useCallback(() => { setFilters({ cluster:"All", category:"All", subreddit:"All", sort:"validationScore", time:"all", search:"", minScore:0 }); setShowSavedOnly(false); }, []);
       const toggleSave = useCallback((id, e) => { e.stopPropagation(); setSaved(s => { const n = new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); }, []);
 
-      const doFetch = useCallback(async (refresh = false) => {
+      // ─── FETCH PIPELINE ─────────────────────────────────────────────
+      const doFetch = useCallback(async () => {
         setLoading(true);
-        setLoadingMsg("Searching Reddit with " + Object.values(KEYWORD_CATEGORIES).reduce((s,d) => s+d.keywords.length, 0) + " keywords...");
-        try {
-          // Try server first, fallback to direct
-          let data;
-          try {
-            data = await fetchFromServer({ sort: fetchSort, time: fetchTime, quick: true, refresh });
-          } catch {
-            setLoadingMsg("Server not found — fetching directly...");
-            data = await fetchDirectFromReddit({ sort: fetchSort, time: fetchTime });
+        setFetchError(null);
+
+        // Build keyword list
+        const allKeywords = [];
+        for (const [cat, data] of Object.entries(KEYWORD_CATEGORIES)) {
+          for (const kw of data.keywords) {
+            allKeywords.push({ keyword: kw, category: cat });
           }
-          setPosts(data.posts);
-          setMeta(data.meta);
-        } catch (err) {
-          console.error("Fetch failed:", err);
-          setLoadingMsg("Could not connect. Check that the server is running.");
         }
+
+        setProgress({ done: 0, total: allKeywords.length, current: "" });
+
+        const allPosts = new Map();
+        let errors = 0;
+        let completed = 0;
+
+        // Fetch in small batches of 3 (parallel but controlled)
+        const batchSize = 3;
+        for (let i = 0; i < allKeywords.length; i += batchSize) {
+          const batch = allKeywords.slice(i, i + batchSize);
+
+          const promises = batch.map(async ({ keyword, category }) => {
+            try {
+              setProgress(p => ({ ...p, current: keyword }));
+              const data = await fetchRedditViaProxy(keyword, "top", "month");
+              const children = data?.data?.children || [];
+
+              for (const raw of children) {
+                if (raw.kind !== "t3" || allPosts.has(raw.data.id)) continue;
+                allPosts.set(raw.data.id, processRawPost(raw.data, keyword, category));
+              }
+            } catch (err) {
+              console.warn(`Failed: "${keyword}":`, err.message);
+              errors++;
+            }
+          });
+
+          await Promise.all(promises);
+          completed += batch.length;
+          setProgress(p => ({ ...p, done: completed }));
+
+          // Small delay between batches to respect rate limits
+          if (i + batchSize < allKeywords.length) {
+            await new Promise(r => setTimeout(r, 800));
+          }
+        }
+
+        const sorted = Array.from(allPosts.values())
+          .sort((a, b) => b.validationScore - a.validationScore);
+
+        if (sorted.length === 0 && errors > 0) {
+          setFetchError(`All ${errors} keyword searches failed. This usually means Reddit is blocking requests from Vercel's servers. Try running locally instead (see README).`);
+        } else if (sorted.length === 0) {
+          setFetchError("No posts found. Reddit may be rate-limiting. Wait a minute and try refreshing.");
+        }
+
+        setPosts(sorted);
+        setMeta({
+          totalFetched: sorted.length,
+          keywordsSearched: allKeywords.length,
+          errors,
+          fetchedAt: new Date().toISOString(),
+          sort: "top",
+          time: "month",
+          fromCache: false,
+        });
         setLoading(false);
-      }, [fetchSort, fetchTime]);
+      }, []);
 
       useEffect(() => { doFetch(); }, []);
 
@@ -386,10 +394,8 @@
         total: posts.length,
       }), [posts, clusterStats]);
 
-      // ─── RENDER ─────────────────────────────────────────────────────
       return (
         <div>
-          {/* Onboarding */}
           {showOnboarding && (
             <div className="modal-overlay" onClick={()=>setShowOnboarding(false)}>
               <div className="modal" onClick={e=>e.stopPropagation()}>
@@ -411,7 +417,6 @@
             </div>
           )}
 
-          {/* Score Guide */}
           {showScoreGuide && (
             <div className="modal-overlay" onClick={()=>setShowScoreGuide(false)}>
               <div className="modal modal-sm" onClick={e=>e.stopPropagation()}>
@@ -429,7 +434,6 @@
             </div>
           )}
 
-          {/* Header */}
           <header className="header">
             <div className="header-inner">
               <div className="logo">
@@ -442,7 +446,7 @@
                     <button key={t.k} className={"nav-btn"+(view===t.k?" active":"")} onClick={()=>setView(t.k)}><span style={{fontSize:10}}>{t.i}</span> {t.l}</button>
                   ))}
                 </nav>
-                <button className={"refresh-btn"+(loading?" loading":"")} onClick={()=>doFetch(true)} disabled={loading}>
+                <button className={"refresh-btn"+(loading?" loading":"")} onClick={doFetch} disabled={loading}>
                   {loading ? "⟳ Fetching..." : "⟳ Refresh"}
                 </button>
               </div>
@@ -450,27 +454,36 @@
           </header>
 
           <main className="main">
-            {/* Loading state */}
-            {loading && posts.length === 0 && (
+            {loading && (
               <div className="loading">
                 <div className="loading-spinner" />
-                <p className="loading-text">{loadingMsg}</p>
-                <p className="loading-sub">This takes 15–30 seconds on first load (rate-limited to respect Reddit)</p>
+                <p className="loading-text">Searching Reddit for business opportunities...</p>
+                <p className="loading-sub">Keyword: "{progress.current || "starting..."}"</p>
+                <div className="loading-progress">
+                  <div className="progress-track">
+                    <div className="progress-fill" style={{width: progress.total ? (progress.done/progress.total*100)+"%":"0%"}} />
+                  </div>
+                  <p className="progress-label">{progress.done} / {progress.total} keywords searched</p>
+                </div>
               </div>
             )}
 
-            {/* ════ DASHBOARD ════ */}
-            {view === "dashboard" && !loading && (
+            {!loading && view === "dashboard" && (
               <>
-                {/* Fetch meta */}
-                {meta && (
-                  <div style={{marginBottom:14,padding:"8px 14px",background:"var(--card)",borderRadius:8,border:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:10,color:"var(--text-dim)"}}>
-                    <span>Fetched {meta.totalFetched} posts · {meta.keywordsSearched} keywords searched · {meta.fetchedAt ? new Date(meta.fetchedAt).toLocaleTimeString() : ""}</span>
-                    <span>{meta.fromCache ? "📦 Cached" : "🔴 Live"} · Sort: {meta.sort} · Time: {meta.time}</span>
+                {fetchError && (
+                  <div className="error-box">
+                    <p className="error-title">Fetch Issue</p>
+                    <p className="error-msg">{fetchError}</p>
                   </div>
                 )}
 
-                {/* KPIs */}
+                {meta && (
+                  <div style={{marginBottom:14,padding:"8px 14px",background:"var(--card)",borderRadius:8,border:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:10,color:"var(--text-dim)"}}>
+                    <span>Fetched {meta.totalFetched} posts · {meta.keywordsSearched} keywords · {meta.errors > 0 ? meta.errors + " errors · " : ""}{new Date(meta.fetchedAt).toLocaleTimeString()}</span>
+                    <span>🔴 Live · Sort: {meta.sort} · Time: {meta.time}</span>
+                  </div>
+                )}
+
                 <div className="kpi-row">
                   {[{l:"Hot Ideas",v:insights.hot,s:"Score ≥ 75",c:"var(--hot)"},{l:"Avg Score",v:insights.avg,s:insights.total+" posts",c:"var(--accent)"},{l:"Blue Ocean",v:insights.blue,s:"No competitors",c:"var(--accent2)"},{l:"Top Cluster",v:insights.top,s:"Highest avg",c:"var(--accent3)",sm:true}].map((k,i)=>(
                     <div key={i} className="kpi">
@@ -482,27 +495,27 @@
                   ))}
                 </div>
 
-                {/* Clusters */}
-                <div className="cluster-box">
-                  <div className="cluster-header">
-                    <p className="cluster-label">IDEA CLUSTERS — click to filter</p>
-                    <button onClick={()=>setShowScoreGuide(true)} style={{background:"none",border:"1px solid var(--border)",borderRadius:6,padding:"4px 10px",color:"var(--text-dim)",fontSize:10,cursor:"pointer",fontFamily:"inherit",fontWeight:600}}>? How scores work</button>
+                {clusterStats.length > 0 && (
+                  <div className="cluster-box">
+                    <div className="cluster-header">
+                      <p className="cluster-label">IDEA CLUSTERS — click to filter</p>
+                      <button onClick={()=>setShowScoreGuide(true)} style={{background:"none",border:"1px solid var(--border)",borderRadius:6,padding:"4px 10px",color:"var(--text-dim)",fontSize:10,cursor:"pointer",fontFamily:"inherit",fontWeight:600}}>? How scores work</button>
+                    </div>
+                    <div className="cluster-grid">
+                      {clusterStats.map(cs => {
+                        const active = filters.cluster === cs.name;
+                        const tier = getTier(cs.avg);
+                        return (
+                          <button key={cs.name} className={"cluster-btn"+(active?" active":"")} onClick={()=>updateFilter("cluster",active?"All":cs.name)}>
+                            <div className="cluster-btn-name"><span>{CLUSTER_ICON_MAP[cs.name]||"📁"}</span>{cs.name}</div>
+                            <p className="cluster-btn-meta">{cs.count} ideas · <span style={{color:tier.color,fontWeight:700}}>avg {cs.avg}</span></p>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="cluster-grid">
-                    {clusterStats.map(cs => {
-                      const active = filters.cluster === cs.name;
-                      const tier = getTier(cs.avg);
-                      return (
-                        <button key={cs.name} className={"cluster-btn"+(active?" active":"")} onClick={()=>updateFilter("cluster",active?"All":cs.name)}>
-                          <div className="cluster-btn-name"><span>{CLUSTER_ICON_MAP[cs.name]||"📁"}</span>{cs.name}</div>
-                          <p className="cluster-btn-meta">{cs.count} ideas · <span style={{color:tier.color,fontWeight:700}}>avg {cs.avg}</span></p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                )}
 
-                {/* Filters */}
                 <div className="filter-bar">
                   <span className="filter-label">FILTER</span>
                   <input className="filter-input" type="text" placeholder="Search ideas..." value={filters.search} onChange={e=>updateFilter("search",e.target.value)} />
@@ -521,8 +534,7 @@
                   {hasActiveFilters && <span style={{color:"var(--accent)"}}>Filters active</span>}
                 </div>
 
-                {/* Posts */}
-                {filtered.length === 0 && (
+                {filtered.length === 0 && !fetchError && (
                   <div className="empty-state">
                     <p className="empty-icon">{showSavedOnly?"★":"🔍"}</p>
                     <p className="empty-title">{showSavedOnly?"No saved ideas yet":"No ideas match these filters"}</p>
@@ -530,6 +542,7 @@
                     <button className="empty-btn" onClick={clearFilters}>{showSavedOnly?"Browse all":"Clear filters"}</button>
                   </div>
                 )}
+
                 {filtered.map((post, i) => {
                   const tier = getTier(post.validationScore);
                   const exp = selectedPost === post.id;
@@ -584,8 +597,7 @@
               </>
             )}
 
-            {/* ════ KEYWORDS ════ */}
-            {view === "keywords" && (
+            {!loading && view === "keywords" && (
               <div>
                 <div style={{marginBottom:20}}><h2 style={{fontSize:18,fontWeight:800,color:"var(--white)",marginBottom:6}}>Keyword Strategy Engine</h2><p style={{fontSize:12,color:"var(--text-dim)",lineHeight:1.7}}>Click any keyword to filter the dashboard by that signal type.</p></div>
                 {Object.entries(KEYWORD_CATEGORIES).map(([cat, data]) => {
@@ -595,8 +607,8 @@
                   return (
                     <div key={cat} className="kw-card">
                       <div className="kw-header">
-                        <div className="kw-title"><span className="kw-icon">{data.icon}</span><div><p className="kw-name">{cat}</p><p className="kw-desc">{data.desc}</p></div></div>
-                        <div className="kw-stats"><p className="kw-avg" style={{color:tier.color}}>{avg}</p><p className="kw-count">{cp.length} matches</p></div>
+                        <div className="kw-title"><span style={{fontSize:22}}>{data.icon}</span><div><p className="kw-name">{cat}</p><p className="kw-desc">{data.desc}</p></div></div>
+                        <div style={{textAlign:"right"}}><p className="kw-avg" style={{color:tier.color}}>{avg}</p><p className="kw-count">{cp.length} matches</p></div>
                       </div>
                       <div className="kw-chips">{data.keywords.map(kw=><button key={kw} className="kw-chip" onClick={()=>{updateFilter("category",cat);setView("dashboard");}}>&ldquo;{kw}&rdquo;</button>)}</div>
                     </div>
@@ -605,8 +617,7 @@
               </div>
             )}
 
-            {/* ════ SUBREDDITS ════ */}
-            {view === "subreddits" && (
+            {!loading && view === "subreddits" && (
               <div>
                 <div style={{marginBottom:20}}><h2 style={{fontSize:18,fontWeight:800,color:"var(--white)",marginBottom:6}}>Target Subreddits</h2><p style={{fontSize:12,color:"var(--text-dim)",lineHeight:1.7}}>Click any subreddit to filter the dashboard.</p></div>
                 <div className="sub-grid">
@@ -616,7 +627,7 @@
                     return (
                       <button key={sub.name} className="sub-card" onClick={()=>{updateFilter("subreddit",sub.display);setView("dashboard");}}>
                         <div className="sub-bar" style={{width:sub.weight*100+"%"}} />
-                        <div className="sub-inner">
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                           <div><p className="sub-name">{sub.display}</p><p className="sub-focus">{sub.focus}</p><p className="sub-members">{sub.members} members</p></div>
                           <div style={{textAlign:"right"}}><p className="sub-weight">{Math.round(sub.weight*100)}%</p><p className="sub-weight-label">SIGNAL QUALITY</p>{sp.length>0&&<p style={{marginTop:4,fontSize:10,color:"var(--text-dim)"}}>{sp.length} posts · avg {avg}</p>}</div>
                         </div>
@@ -630,7 +641,7 @@
 
           <footer className="footer">
             <div className="footer-inner">
-              <span>v2.0 · {posts.length} posts indexed{meta?.fromCache ? " (cached)" : ""}</span>
+              <span>v2.1 · {posts.length} posts indexed{meta?.errors>0 ? ` · ${meta.errors} errors`:""}</span>
               <button className="footer-link" onClick={()=>setShowScoreGuide(true)}>How scoring works</button>
             </div>
           </footer>
