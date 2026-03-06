@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reddit Market Intel — Business Opportunity Radar</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #07070e; --card: #0e0e18; --card-hover: #131320;
+      --border: #1a1a2e; --border-active: #4f46e5;
+      --accent: #6366f1; --accent2: #06d6a0; --accent3: #ffd166;
+      --text: #e4e4ef; --text-dim: #6b6b82; --text-muted: #44445a;
+      --hot: #ff4757; --warm: #ffa502; --mild: #2ed573; --cool: #747d8c;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'IBM Plex Mono', 'SF Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    input::placeholder { color: var(--text-muted); }
+    button { font-family: inherit; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .header { border-bottom: 1px solid var(--border); padding: 16px 24px; position: sticky; top: 0; z-index: 100; background: rgba(7,7,14,0.93); backdrop-filter: blur(16px); }
+    .header-inner { display: flex; justify-content: space-between; align-items: center; max-width: 1300px; margin: 0 auto; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: var(--white); }
+    .logo h1 { font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: -0.02em; }
+    .logo p { font-size: 9px; color: var(--text-muted); letter-spacing: 0.12em; font-weight: 600; }
+
+    .nav { display: flex; gap: 4px; }
+    .nav-btn { padding: 7px 14px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--text-dim); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; gap: 5px; }
+    .nav-btn.active { border-color: var(--border-active); background: rgba(99,102,241,0.08); color: var(--accent); }
+
+    .main { max-width: 1300px; margin: 0 auto; padding: 20px 24px; }
+
+    .kpi-row { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; position: relative; overflow: hidden; flex: 1 1 0; min-width: 140px; }
+    .kpi-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .kpi-label { font-size: 10px; color: var(--text-dim); letter-spacing: 0.12em; font-weight: 700; text-transform: uppercase; }
+    .kpi-value { margin-top: 8px; font-size: 30px; font-weight: 800; color: var(--white); line-height: 1; }
+    .kpi-value.small { font-size: 17px; }
+    .kpi-sub { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+    .cluster-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+    .cluster-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .cluster-label { font-size: 10px; font-weight: 700; color: var(--text-dim); letter-spacing: 0.1em; }
+    .cluster-grid { display: flex; gap: 6px; flex-wrap: wrap; }
+    .cluster-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-family: inherit; transition: all 0.15s ease; text-align: left; background: transparent; }
+    .cluster-btn.active { border: 2px solid var(--accent); background: rgba(99,102,241,0.09); }
+    .cluster-btn-name { font-size: 11px; font-weight: 700; color: var(--white); display: flex; align-items: center; gap: 6px; }
+    .cluster-btn-meta { margin-top: 4px; font-size: 10px; color: var(--text-dim); }
+
+    .filter-bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .filter-label { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.1em; margin-right: 4px; }
+    .filter-input { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 11px; font-family: inherit; width: 170px; outline: none; }
+    .filter-select { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 11px; font-family: inherit; cursor: pointer; outline: none; }
+    .filter-right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+    .pill { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
+    .pill.active { border-color: var(--accent3); background: rgba(255,209,102,0.09); color: var(--accent3); }
+    .clear-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; color: var(--hot); font-size: 10px; cursor: pointer; font-family: inherit; font-weight: 600; }
+
+    .results-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px; font-size: 11px; color: var(--text-dim); }
+
+    .post-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.25s ease; overflow: hidden; margin-bottom: 8px; }
+    .post-card.expanded { background: var(--card-hover); border-color: var(--border-active); }
+    .post-bar { height: 3px; }
+    .post-inner { padding: 16px 20px; }
+    .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .post-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .post-tier { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 5px; letter-spacing: 0.08em; }
+    .post-sub { font-size: 10px; color: var(--accent); font-weight: 600; }
+    .post-date { font-size: 10px; color: var(--text-muted); }
+    .blue-ocean { font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 4px; background: rgba(6,214,160,0.09); color: var(--accent2); letter-spacing: 0.06em; }
+    .save-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 2px 6px; transition: all 0.15s ease; }
+    .post-title { margin-bottom: 10px; font-size: 14px; font-weight: 600; color: var(--white); line-height: 1.45; }
+    .post-metrics { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+    .metric { font-size: 11px; color: var(--text-dim); }
+    .cluster-tag { font-size: 10px; padding: 3px 10px; border-radius: 5px; background: rgba(99,102,241,0.07); color: var(--accent); font-weight: 600; }
+    .keyword-tag { font-size: 10px; padding: 3px 8px; border-radius: 5px; background: rgba(255,255,255,0.03); color: var(--text-dim); font-style: italic; }
+
+    .post-expanded { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .post-snippet { margin-bottom: 14px; font-size: 12px; color: var(--text-dim); line-height: 1.65; font-style: italic; border-left: 3px solid var(--text-muted); padding-left: 12px; }
+    .post-link { display: inline-block; margin-bottom: 14px; font-size: 11px; color: var(--accent); }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .detail-cell { background: var(--bg); border-radius: 8px; padding: 10px 12px; text-align: center; }
+    .detail-label { font-size: 9px; color: var(--text-muted); letter-spacing: 0.1em; font-weight: 700; }
+    .detail-value { margin-top: 4px; font-size: 16px; font-weight: 800; }
+    .detail-sub { margin-top: 2px; font-size: 9px; color: var(--text-dim); }
+
+    .empty-state { text-align: center; padding: 50px 20px; background: var(--card); border-radius: 12px; border: 1px solid var(--border); }
+    .empty-icon { font-size: 28px; margin-bottom: 10px; }
+    .empty-title { font-size: 14px; color: var(--white); font-weight: 600; margin-bottom: 6px; }
+    .empty-desc { font-size: 12px; color: var(--text-dim); margin-bottom: 16px; max-width: 360px; margin-left: auto; margin-right: auto; }
+    .empty-btn { padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+    /* Loading */
+    .loading { text-align: center; padding: 60px 20px; }
+    .loading-spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 13px; color: var(--text-dim); }
+    .loading-sub { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+    /* Refresh button */
+    .refresh-btn { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; color: var(--accent); font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s ease; display: flex; align-items: center; gap: 6px; }
+    .refresh-btn:hover { border-color: var(--accent); background: rgba(99,102,241,0.08); }
+    .refresh-btn.loading { opacity: 0.5; pointer-events: none; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 36px 32px; max-width: 520px; width: 90%; }
+    .modal-sm { padding: 28px; max-width: 440px; }
+    .modal-cta { width: 100%; padding: 12px 0; border-radius: 10px; border: none; cursor: pointer; background: linear-gradient(135deg, var(--accent), #818cf8); color: var(--white); font-size: 14px; font-weight: 700; font-family: inherit; letter-spacing: 0.02em; }
+    .modal-close { width: 100%; margin-top: 16px; padding: 10px 0; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+    .score-bar-track { height: 6px; border-radius: 3px; background: var(--bg); overflow: hidden; margin-bottom: 4px; }
+    .score-bar-fill { height: 100%; border-radius: 3px; }
+
+    .footer { padding: 18px 24px; border-top: 1px solid var(--border); margin-top: 24px; }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; max-width: 1300px; margin: 0 auto; font-size: 10px; color: var(--text-muted); }
+    .footer-link { background: none; border: none; color: var(--text-muted); font-size: 10px; cursor: pointer; font-family: inherit; text-decoration: underline; }
+
+    /* Keywords page */
+    .kw-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 10px; }
+    .kw-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+    .kw-title { display: flex; gap: 10px; align-items: center; }
+    .kw-icon { font-size: 22px; }
+    .kw-name { font-size: 14px; font-weight: 700; color: var(--white); }
+    .kw-desc { margin-top: 3px; font-size: 11px; color: var(--text-dim); }
+    .kw-stats { text-align: right; }
+    .kw-avg { font-size: 18px; font-weight: 800; }
+    .kw-count { font-size: 9px; color: var(--text-dim); }
+    .kw-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .kw-chip { font-size: 11px; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; background: rgba(99,102,241,0.04); color: var(--accent); border: 1px solid rgba(99,102,241,0.13); font-weight: 500; transition: all 0.15s ease; }
+    .kw-chip:hover { background: rgba(99,102,241,0.12); border-color: var(--accent); }
+
+    /* Subreddits page */
+    .sub-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .sub-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; cursor: pointer; font-family: inherit; text-align: left; position: relative; overflow: hidden; transition: all 0.15s ease; }
+    .sub-card:hover { border-color: var(--border-active); }
+    .sub-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 0 2px 0 0; }
+    .sub-inner { display: flex; justify-content: space-between; align-items: flex-start; }
+    .sub-name { font-size: 15px; font-weight: 700; color: var(--white); }
+    .sub-focus { margin-top: 4px; font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+    .sub-members { margin-top: 6px; font-size: 10px; color: var(--text-muted); }
+    .sub-weight { font-size: 22px; font-weight: 800; color: var(--accent); }
+    .sub-weight-label { margin-top: 2px; font-size: 9px; color: var(--text-dim); letter-spacing: 0.05em; }
+
+    @media (max-width: 768px) {
+      .kpi-row { flex-direction: column; }
+      .sub-grid { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .filter-bar { flex-direction: column; align-items: stretch; }
+      .filter-right { margin-left: 0; justify-content: flex-start; }
+      .header-inner { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useMemo, useEffect, useCallback } = React;
+
+    // ─── CONFIG (mirrors server config) ─────────────────────────────────
+    const KEYWORD_CATEGORIES = {
+      "Direct Idea Signals": { icon: "💡", desc: "People explicitly sharing startup concepts", keywords: ["startup idea","ai startup","idea to implement","business idea","saas idea","app idea","side project idea","micro saas"] },
+      "Problem Signals": { icon: "🔥", desc: "Real pain points — highest quality opportunities", keywords: ["I wish there was","someone should build","why isn't there","I'd pay for","frustrated with","looking for a tool","there should be","can't find a good"] },
+      "Validation Signals": { icon: "✅", desc: "Founders testing ideas — see what gets traction", keywords: ["would you pay for","is this a good idea","validate my idea","looking for feedback","roast my startup","need beta testers"] },
+      "Market Gap Signals": { icon: "🎯", desc: "Dissatisfaction with existing solutions", keywords: ["alternative to","better than","replacement for","competitor to","open source alternative","cheaper than"] },
+    };
+
+    const SUBREDDITS = [
+      { name: "startups", display: "r/startups", focus: "Early-stage founders", weight: 0.95, members: "1.2M" },
+      { name: "SaaS", display: "r/SaaS", focus: "SaaS builders & buyers", weight: 0.9, members: "180K" },
+      { name: "Entrepreneur", display: "r/Entrepreneur", focus: "Broad entrepreneurship", weight: 0.85, members: "3.1M" },
+      { name: "indiehackers", display: "r/indiehackers", focus: "Solo/small team builders", weight: 0.9, members: "95K" },
+      { name: "smallbusiness", display: "r/smallbusiness", focus: "SMB pain points", weight: 0.8, members: "850K" },
+      { name: "digitalnomad", display: "r/digitalnomad", focus: "Remote work tools", weight: 0.7, members: "2.4M" },
+      { name: "artificial", display: "r/artificial", focus: "AI applications", weight: 0.85, members: "520K" },
+      { name: "ChatGPT", display: "r/ChatGPT", focus: "AI tool demand", weight: 0.75, members: "5.8M" },
+      { name: "webdev", display: "r/webdev", focus: "Developer tools", weight: 0.7, members: "2.1M" },
+      { name: "nocode", display: "r/nocode", focus: "No-code solutions", weight: 0.8, members: "210K" },
+    ];
+
+    const CLUSTERS = [
+      { name: "AI/Automation Tools", icon: "🤖", terms: ["ai ","artificial intelligence","machine learning","automat","chatgpt","llm","gpt","neural","nlp"] },
+      { name: "Developer Tools", icon: "⚙️", terms: ["developer","dev tool","api","sdk","open source","github","code","programming","i18n","localization"] },
+      { name: "Finance/Fintech", icon: "💳", terms: ["fintech","finance","payment","invoice","banking","expense","tax","accounting","invest","factoring"] },
+      { name: "Health & Wellness", icon: "💪", terms: ["health","fitness","wellness","workout","medical","wearable","bloodwork","supplement","gym"] },
+      { name: "Education/Learning", icon: "📚", terms: ["education","learning","study","course","quiz","teach","tutor","student","lecture"] },
+      { name: "Creator Economy", icon: "🎨", terms: ["creator","youtube","content","social media","influencer","podcast","newsletter","social proof"] },
+      { name: "SMB/Operations", icon: "🏪", terms: ["small business","smb","crm","warehouse","inventory","operations","service business","agency"] },
+      { name: "Marketplace/Platform", icon: "🏛️", terms: ["marketplace","platform","matching","connect","freelancer","co-founder"] },
+      { name: "Productivity", icon: "⚡", terms: ["productivity","project management","scheduling","calendar","meeting","notion","airtable","task","jira"] },
+      { name: "Data & Analytics", icon: "📊", terms: ["analytics","data","intelligence","dashboard","insights","monitoring","competitive","tracking","roadmap"] },
+    ];
+
+    const CLUSTER_ICON_MAP = {};
+    CLUSTERS.forEach(c => CLUSTER_ICON_MAP[c.name] = c.icon);
+
+    const POSITIVE_SIGNALS = ["i'd pay","shut up and take my money","would pay","need this","please build","take my money","game changer","brilliant","genius","love this","great idea","underserved","huge opportunity"];
+    const NEGATIVE_SIGNALS = ["already exists","been done","won't work","bad idea","oversaturated","too crowded","dead market","waste of time"];
+    const COMPETITOR_SIGNALS = ["already exists","competitor","similar to","alternative","but better","does this but","tried","currently using"];
+
+    // ─── SCORING ────────────────────────────────────────────────────────
+    function scorePost(post) {
+      const up = Math.min(post.upvotes / 500, 1) * 30;
+      const co = Math.min(post.comments / 100, 1) * 25;
+      const se = post.sentimentPositive * 20;
+      const days = (Date.now() - new Date(post.date).getTime()) / 86400000;
+      const re = Math.max(0, 1 - days / 365) * 15;
+      const cp = post.hasCompetitors ? 5 : 10;
+      return Math.round(up + co + se + re + cp);
+    }
+
+    function getTier(score) {
+      if (score >= 75) return { label: "HOT", color: "var(--hot)", bg: "rgba(255,71,87,0.12)" };
+      if (score >= 55) return { label: "WARM", color: "var(--warm)", bg: "rgba(255,165,2,0.12)" };
+      if (score >= 35) return { label: "MILD", color: "var(--mild)", bg: "rgba(46,213,115,0.12)" };
+      return { label: "COOL", color: "var(--cool)", bg: "rgba(116,125,140,0.1)" };
+    }
+
+    function relDate(d) {
+      const days = Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
+      if (days === 0) return "Today"; if (days === 1) return "Yesterday";
+      if (days < 7) return days + "d ago"; if (days < 30) return Math.floor(days/7) + "w ago";
+      return Math.floor(days/30) + "mo ago";
+    }
+
+    // ─── PROCESS RAW REDDIT DATA ────────────────────────────────────────
+    function processRedditPost(raw, searchKeyword, category) {
+      const d = raw.data;
+      const text = (d.title + " " + (d.selftext || "")).toLowerCase();
+
+      // Sentiment
+      let pos = 0, neg = 0, hasComp = false;
+      POSITIVE_SIGNALS.forEach(s => { if (text.includes(s)) pos++; });
+      NEGATIVE_SIGNALS.forEach(s => { if (text.includes(s)) neg++; });
+      COMPETITOR_SIGNALS.forEach(s => { if (text.includes(s)) hasComp = true; });
+      const total = pos + neg;
+      let sent = total === 0 ? ((d.upvote_ratio||0.5) >= 0.7 ? 0.65 : 0.45) : Math.min(0.95, Math.max(0.15, pos/total));
+      if ((d.upvote_ratio||0.5) >= 0.9) sent = Math.min(0.95, sent + 0.1);
+
+      // Cluster
+      let cluster = "Other";
+      for (const cl of CLUSTERS) {
+        if (cl.terms.some(t => text.includes(t))) { cluster = cl.name; break; }
+      }
+
+      const post = {
+        id: d.id,
+        title: d.title,
+        subreddit: "r/" + d.subreddit,
+        author: "u/" + d.author,
+        date: new Date(d.created_utc * 1000).toISOString().split("T")[0],
+        upvotes: d.ups || d.score || 0,
+        comments: d.num_comments || 0,
+        url: "https://reddit.com" + d.permalink,
+        snippet: d.selftext ? d.selftext.substring(0, 250) + (d.selftext.length > 250 ? "..." : "") : "",
+        sentimentPositive: Math.round(sent * 100) / 100,
+        hasCompetitors: hasComp,
+        cluster,
+        category,
+        keywordMatch: searchKeyword,
+      };
+      post.validationScore = scorePost(post);
+      return post;
+    }
+
+    // ─── DATA FETCHER ───────────────────────────────────────────────────
+    async function fetchFromServer(options = {}) {
+      const { sort = "top", time = "month", quick = true, refresh = false } = options;
+      const params = new URLSearchParams({ sort, time, quick: String(quick) });
+      if (refresh) params.set("refresh", "true");
+
+      const res = await fetch("/api/fetch?" + params);
+      if (!res.ok) throw new Error("Server error: " + res.status);
+      return res.json();
+    }
+
+    // Fallback: fetch directly from Reddit (for standalone use)
+    async function fetchDirectFromReddit(options = {}) {
+      const { sort = "top", time = "month" } = options;
+      const allPosts = new Map();
+      const keywords = [];
+      for (const [cat, data] of Object.entries(KEYWORD_CATEGORIES)) {
+        for (const kw of data.keywords.slice(0, 2)) { // Limit for direct fetch
+          keywords.push({ keyword: kw, category: cat });
+        }
+      }
+
+      for (const { keyword, category } of keywords) {
+        try {
+          const url = `/api/reddit/search?q=${encodeURIComponent(keyword)}&sort=${sort}&t=${time}&limit=15`;
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const data = await res.json();
+          for (const raw of (data?.data?.children || [])) {
+            if (raw.kind !== "t3" || allPosts.has(raw.data.id)) continue;
+            allPosts.set(raw.data.id, processRedditPost(raw, keyword, category));
+          }
+          await new Promise(r => setTimeout(r, 1500));
+        } catch (e) { console.warn("Fetch error:", e); }
+      }
+
+      const posts = Array.from(allPosts.values()).sort((a,b) => b.validationScore - a.validationScore);
+      return { posts, meta: { totalFetched: posts.length, fetchedAt: new Date().toISOString(), sort, time } };
+    }
+
+    // ─── MAIN APP ───────────────────────────────────────────────────────
+    function App() {
+      const [view, setView] = useState("dashboard");
+      const [posts, setPosts] = useState([]);
+      const [meta, setMeta] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [loadingMsg, setLoadingMsg] = useState("Connecting to Reddit...");
+      const [filters, setFilters] = useState({ cluster: "All", category: "All", subreddit: "All", sort: "validationScore", time: "all", search: "", minScore: 0 });
+      const [selectedPost, setSelectedPost] = useState(null);
+      const [saved, setSaved] = useState(new Set());
+      const [showSavedOnly, setShowSavedOnly] = useState(false);
+      const [showOnboarding, setShowOnboarding] = useState(true);
+      const [showScoreGuide, setShowScoreGuide] = useState(false);
+      const [fetchSort, setFetchSort] = useState("top");
+      const [fetchTime, setFetchTime] = useState("month");
+
+      const updateFilter = useCallback((k, v) => setFilters(f => ({...f, [k]: v})), []);
+      const clearFilters = useCallback(() => { setFilters({ cluster:"All", category:"All", subreddit:"All", sort:"validationScore", time:"all", search:"", minScore:0 }); setShowSavedOnly(false); }, []);
+      const toggleSave = useCallback((id, e) => { e.stopPropagation(); setSaved(s => { const n = new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); }, []);
+
+      const doFetch = useCallback(async (refresh = false) => {
+        setLoading(true);
+        setLoadingMsg("Searching Reddit with " + Object.values(KEYWORD_CATEGORIES).reduce((s,d) => s+d.keywords.length, 0) + " keywords...");
+        try {
+          // Try server first, fallback to direct
+          let data;
+          try {
+            data = await fetchFromServer({ sort: fetchSort, time: fetchTime, quick: true, refresh });
+          } catch {
+            setLoadingMsg("Server not found — fetching directly...");
+            data = await fetchDirectFromReddit({ sort: fetchSort, time: fetchTime });
+          }
+          setPosts(data.posts);
+          setMeta(data.meta);
+        } catch (err) {
+          console.error("Fetch failed:", err);
+          setLoadingMsg("Could not connect. Check that the server is running.");
+        }
+        setLoading(false);
+      }, [fetchSort, fetchTime]);
+
+      useEffect(() => { doFetch(); }, []);
+
+      const hasActiveFilters = filters.cluster !== "All" || filters.category !== "All" || filters.subreddit !== "All" || filters.minScore > 0 || filters.search || filters.time !== "all";
+
+      const filtered = useMemo(() => {
+        let p = [...posts];
+        if (showSavedOnly) p = p.filter(x => saved.has(x.id));
+        if (filters.cluster !== "All") p = p.filter(x => x.cluster === filters.cluster);
+        if (filters.category !== "All") p = p.filter(x => x.category === filters.category);
+        if (filters.subreddit !== "All") p = p.filter(x => x.subreddit === filters.subreddit);
+        if (filters.minScore > 0) p = p.filter(x => x.validationScore >= filters.minScore);
+        if (filters.search) { const q = filters.search.toLowerCase(); p = p.filter(x => x.title.toLowerCase().includes(q) || x.snippet.toLowerCase().includes(q) || x.cluster.toLowerCase().includes(q)); }
+        if (filters.time !== "all") { const ms = {day:1,week:7,month:30,year:365}[filters.time]*86400000; p = p.filter(x => Date.now()-new Date(x.date).getTime()<=ms); }
+        const fns = { validationScore:(a,b)=>b.validationScore-a.validationScore, upvotes:(a,b)=>b.upvotes-a.upvotes, comments:(a,b)=>b.comments-a.comments, date:(a,b)=>new Date(b.date)-new Date(a.date) };
+        p.sort(fns[filters.sort] || fns.validationScore);
+        return p;
+      }, [posts, filters, showSavedOnly, saved]);
+
+      const clusterStats = useMemo(() => {
+        const s = {};
+        posts.forEach(p => { if(!s[p.cluster]) s[p.cluster]={count:0,total:0}; s[p.cluster].count++; s[p.cluster].total+=p.validationScore; });
+        return Object.entries(s).map(([n,d])=>({name:n,...d,avg:Math.round(d.total/d.count)})).sort((a,b)=>b.avg-a.avg);
+      }, [posts]);
+
+      const insights = useMemo(() => ({
+        hot: posts.filter(p=>p.validationScore>=75).length,
+        avg: posts.length ? Math.round(posts.reduce((s,p)=>s+p.validationScore,0)/posts.length) : 0,
+        blue: posts.filter(p=>!p.hasCompetitors).length,
+        top: clusterStats[0]?.name || "—",
+        total: posts.length,
+      }), [posts, clusterStats]);
+
+      // ─── RENDER ─────────────────────────────────────────────────────
+      return (
+        <div>
+          {/* Onboarding */}
+          {showOnboarding && (
+            <div className="modal-overlay" onClick={()=>setShowOnboarding(false)}>
+              <div className="modal" onClick={e=>e.stopPropagation()}>
+                <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
+                  <div className="logo-icon" style={{width:44,height:44,fontSize:22}}>R</div>
+                  <div><h2 style={{fontSize:20,fontWeight:800,color:"var(--white)"}}>Reddit Market Intel</h2><p style={{fontSize:12,color:"var(--text-dim)"}}>Your business opportunity radar</p></div>
+                </div>
+                <p style={{fontSize:13,color:"var(--text)",lineHeight:1.7,marginBottom:20}}>This dashboard fetches real posts from Reddit, scores them for business potential, and surfaces the most promising opportunities.</p>
+                <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:24}}>
+                  {[{i:"📊",t:"Live Scoring",d:"Every post scored 0–100 based on engagement, sentiment, recency, and competition"},{i:"🔍",t:"Smart Keywords",d:"4 signal types tracked — from direct ideas to hidden pain points"},{i:"🗂️",t:"Auto-Clustering",d:"Posts grouped into business themes automatically"},{i:"⭐",t:"Save & Compare",d:"Bookmark promising ideas for your shortlist"}].map((x,i) => (
+                    <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start"}}>
+                      <span style={{fontSize:20}}>{x.i}</span>
+                      <div><p style={{fontSize:12,fontWeight:700,color:"var(--white)"}}>{x.t}</p><p style={{marginTop:2,fontSize:11,color:"var(--text-dim)",lineHeight:1.5}}>{x.d}</p></div>
+                    </div>
+                  ))}
+                </div>
+                <button className="modal-cta" onClick={()=>setShowOnboarding(false)}>Explore Ideas →</button>
+              </div>
+            </div>
+          )}
+
+          {/* Score Guide */}
+          {showScoreGuide && (
+            <div className="modal-overlay" onClick={()=>setShowScoreGuide(false)}>
+              <div className="modal modal-sm" onClick={e=>e.stopPropagation()}>
+                <h3 style={{marginBottom:16,fontSize:16,fontWeight:800,color:"var(--white)"}}>How Validation Scores Work</h3>
+                <p style={{fontSize:12,color:"var(--text-dim)",lineHeight:1.6,marginBottom:16}}>Each post is scored 0–100 using five factors:</p>
+                {[{l:"Upvotes",p:30,c:"var(--accent)",d:"Community agreement"},{l:"Comments",p:25,c:"var(--accent2)",d:"Discussion depth"},{l:"Sentiment",p:20,c:"var(--warm)",d:"Positive language signals"},{l:"Recency",p:15,c:"#a78bfa",d:"Newer = more actionable"},{l:"Competition",p:10,c:"var(--hot)",d:"No competitors = bonus"}].map((f,i)=>(
+                  <div key={i} style={{marginBottom:12}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:12,fontWeight:700,color:"var(--white)"}}>{f.l}</span><span style={{fontSize:11,fontWeight:700,color:f.c}}>{f.p}%</span></div>
+                    <div className="score-bar-track"><div className="score-bar-fill" style={{width:f.p+"%",background:f.c}} /></div>
+                    <p style={{fontSize:10,color:"var(--text-dim)"}}>{f.d}</p>
+                  </div>
+                ))}
+                <button className="modal-close" onClick={()=>setShowScoreGuide(false)}>Got it</button>
+              </div>
+            </div>
+          )}
+
+          {/* Header */}
+          <header className="header">
+            <div className="header-inner">
+              <div className="logo">
+                <div className="logo-icon">R</div>
+                <div><h1>Reddit Market Intel</h1><p>BUSINESS OPPORTUNITY RADAR</p></div>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <nav className="nav">
+                  {[{k:"dashboard",l:"Dashboard",i:"◉"},{k:"keywords",l:"Keywords",i:"⟐"},{k:"subreddits",l:"Sources",i:"◎"}].map(t=>(
+                    <button key={t.k} className={"nav-btn"+(view===t.k?" active":"")} onClick={()=>setView(t.k)}><span style={{fontSize:10}}>{t.i}</span> {t.l}</button>
+                  ))}
+                </nav>
+                <button className={"refresh-btn"+(loading?" loading":"")} onClick={()=>doFetch(true)} disabled={loading}>
+                  {loading ? "⟳ Fetching..." : "⟳ Refresh"}
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <main className="main">
+            {/* Loading state */}
+            {loading && posts.length === 0 && (
+              <div className="loading">
+                <div className="loading-spinner" />
+                <p className="loading-text">{loadingMsg}</p>
+                <p className="loading-sub">This takes 15–30 seconds on first load (rate-limited to respect Reddit)</p>
+              </div>
+            )}
+
+            {/* ════ DASHBOARD ════ */}
+            {view === "dashboard" && !loading && (
+              <>
+                {/* Fetch meta */}
+                {meta && (
+                  <div style={{marginBottom:14,padding:"8px 14px",background:"var(--card)",borderRadius:8,border:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:10,color:"var(--text-dim)"}}>
+                    <span>Fetched {meta.totalFetched} posts · {meta.keywordsSearched} keywords searched · {meta.fetchedAt ? new Date(meta.fetchedAt).toLocaleTimeString() : ""}</span>
+                    <span>{meta.fromCache ? "📦 Cached" : "🔴 Live"} · Sort: {meta.sort} · Time: {meta.time}</span>
+                  </div>
+                )}
+
+                {/* KPIs */}
+                <div className="kpi-row">
+                  {[{l:"Hot Ideas",v:insights.hot,s:"Score ≥ 75",c:"var(--hot)"},{l:"Avg Score",v:insights.avg,s:insights.total+" posts",c:"var(--accent)"},{l:"Blue Ocean",v:insights.blue,s:"No competitors",c:"var(--accent2)"},{l:"Top Cluster",v:insights.top,s:"Highest avg",c:"var(--accent3)",sm:true}].map((k,i)=>(
+                    <div key={i} className="kpi">
+                      <div className="kpi-bar" style={{background:`linear-gradient(90deg,${k.c},transparent)`}} />
+                      <p className="kpi-label">{k.l}</p>
+                      <p className={"kpi-value"+(k.sm?" small":"")}>{k.v}</p>
+                      <p className="kpi-sub">{k.s}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Clusters */}
+                <div className="cluster-box">
+                  <div className="cluster-header">
+                    <p className="cluster-label">IDEA CLUSTERS — click to filter</p>
+                    <button onClick={()=>setShowScoreGuide(true)} style={{background:"none",border:"1px solid var(--border)",borderRadius:6,padding:"4px 10px",color:"var(--text-dim)",fontSize:10,cursor:"pointer",fontFamily:"inherit",fontWeight:600}}>? How scores work</button>
+                  </div>
+                  <div className="cluster-grid">
+                    {clusterStats.map(cs => {
+                      const active = filters.cluster === cs.name;
+                      const tier = getTier(cs.avg);
+                      return (
+                        <button key={cs.name} className={"cluster-btn"+(active?" active":"")} onClick={()=>updateFilter("cluster",active?"All":cs.name)}>
+                          <div className="cluster-btn-name"><span>{CLUSTER_ICON_MAP[cs.name]||"📁"}</span>{cs.name}</div>
+                          <p className="cluster-btn-meta">{cs.count} ideas · <span style={{color:tier.color,fontWeight:700}}>avg {cs.avg}</span></p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Filters */}
+                <div className="filter-bar">
+                  <span className="filter-label">FILTER</span>
+                  <input className="filter-input" type="text" placeholder="Search ideas..." value={filters.search} onChange={e=>updateFilter("search",e.target.value)} />
+                  <select className="filter-select" value={filters.category} onChange={e=>updateFilter("category",e.target.value)}><option value="All">All Signals</option>{Object.keys(KEYWORD_CATEGORIES).map(c=><option key={c} value={c}>{c}</option>)}</select>
+                  <select className="filter-select" value={filters.subreddit} onChange={e=>updateFilter("subreddit",e.target.value)}><option value="All">All Subreddits</option>{SUBREDDITS.map(s=><option key={s.display} value={s.display}>{s.display}</option>)}</select>
+                  <select className="filter-select" value={filters.sort} onChange={e=>updateFilter("sort",e.target.value)}><option value="validationScore">By Score</option><option value="upvotes">By Upvotes</option><option value="comments">By Comments</option><option value="date">By Date</option></select>
+                  <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:10,color:"var(--text-muted)",fontWeight:600}}>MIN</span><input type="range" min={0} max={90} step={5} value={filters.minScore} onChange={e=>updateFilter("minScore",Number(e.target.value))} style={{width:70,accentColor:"var(--accent)"}} /><span style={{fontSize:11,fontWeight:700,color:"var(--white)",minWidth:20}}>{filters.minScore}</span></div>
+                  <div className="filter-right">
+                    <button className={"pill"+(showSavedOnly?" active":"")} onClick={()=>setShowSavedOnly(!showSavedOnly)}>★ Saved ({saved.size})</button>
+                    {hasActiveFilters && <button className="clear-btn" onClick={clearFilters}>✕ Clear</button>}
+                  </div>
+                </div>
+
+                <div className="results-info">
+                  <span>{filtered.length} idea{filtered.length!==1?"s":""} found</span>
+                  {hasActiveFilters && <span style={{color:"var(--accent)"}}>Filters active</span>}
+                </div>
+
+                {/* Posts */}
+                {filtered.length === 0 && (
+                  <div className="empty-state">
+                    <p className="empty-icon">{showSavedOnly?"★":"🔍"}</p>
+                    <p className="empty-title">{showSavedOnly?"No saved ideas yet":"No ideas match these filters"}</p>
+                    <p className="empty-desc">{showSavedOnly?"Click ☆ on any card to save it.":"Try broadening your search or clearing filters."}</p>
+                    <button className="empty-btn" onClick={clearFilters}>{showSavedOnly?"Browse all":"Clear filters"}</button>
+                  </div>
+                )}
+                {filtered.map((post, i) => {
+                  const tier = getTier(post.validationScore);
+                  const exp = selectedPost === post.id;
+                  const sv = saved.has(post.id);
+                  return (
+                    <div key={post.id} className={"post-card"+(exp?" expanded":"")} onClick={()=>setSelectedPost(exp?null:post.id)}>
+                      <div className="post-bar" style={{background:`linear-gradient(90deg,${tier.color},transparent 70%)`}} />
+                      <div className="post-inner">
+                        <div className="post-header">
+                          <div className="post-meta">
+                            <span className="post-tier" style={{background:tier.bg,color:tier.color}}>{tier.label} · {post.validationScore}</span>
+                            <span className="post-sub">{post.subreddit}</span>
+                            <span className="post-date">{relDate(post.date)}</span>
+                            {!post.hasCompetitors && <span className="blue-ocean">BLUE OCEAN</span>}
+                          </div>
+                          <button className="save-btn" style={{color:sv?"var(--accent3)":"var(--text-muted)",transform:sv?"scale(1.15)":"scale(1)"}} onClick={e=>toggleSave(post.id,e)}>{sv?"★":"☆"}</button>
+                        </div>
+                        <h3 className="post-title">{post.title}</h3>
+                        <div className="post-metrics">
+                          <span className="metric"><span style={{color:"var(--warm)"}}>▲</span> {post.upvotes.toLocaleString()}</span>
+                          <span className="metric">💬 {post.comments}</span>
+                          <span className="cluster-tag">{CLUSTER_ICON_MAP[post.cluster]||""} {post.cluster}</span>
+                          <span className="keyword-tag">"{post.keywordMatch}"</span>
+                        </div>
+                        {exp && (
+                          <div className="post-expanded">
+                            {post.snippet && <p className="post-snippet">{post.snippet}</p>}
+                            <a className="post-link" href={post.url} target="_blank" rel="noopener">View on Reddit →</a>
+                            <div className="detail-grid">
+                              <div className="detail-cell">
+                                <p className="detail-label">SENTIMENT</p>
+                                <p className="detail-value" style={{color:post.sentimentPositive>=0.8?"var(--mild)":"var(--warm)"}}>{Math.round(post.sentimentPositive*100)}%</p>
+                                <p className="detail-sub">positive</p>
+                              </div>
+                              <div className="detail-cell">
+                                <p className="detail-label">COMPETITION</p>
+                                <p className="detail-value" style={{color:post.hasCompetitors?"var(--warm)":"var(--accent2)",fontSize:13}}>{post.hasCompetitors?"Exists":"None"}</p>
+                                <p className="detail-sub">{post.hasCompetitors?"gap opportunity":"blue ocean"}</p>
+                              </div>
+                              <div className="detail-cell">
+                                <p className="detail-label">SIGNAL TYPE</p>
+                                <p className="detail-value" style={{fontSize:16}}>{KEYWORD_CATEGORIES[post.category]?.icon||"💡"}</p>
+                                <p className="detail-sub">{post.category.replace(" Signals","")}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
+
+            {/* ════ KEYWORDS ════ */}
+            {view === "keywords" && (
+              <div>
+                <div style={{marginBottom:20}}><h2 style={{fontSize:18,fontWeight:800,color:"var(--white)",marginBottom:6}}>Keyword Strategy Engine</h2><p style={{fontSize:12,color:"var(--text-dim)",lineHeight:1.7}}>Click any keyword to filter the dashboard by that signal type.</p></div>
+                {Object.entries(KEYWORD_CATEGORIES).map(([cat, data]) => {
+                  const cp = posts.filter(p=>p.category===cat);
+                  const avg = cp.length ? Math.round(cp.reduce((s,p)=>s+p.validationScore,0)/cp.length) : 0;
+                  const tier = getTier(avg);
+                  return (
+                    <div key={cat} className="kw-card">
+                      <div className="kw-header">
+                        <div className="kw-title"><span className="kw-icon">{data.icon}</span><div><p className="kw-name">{cat}</p><p className="kw-desc">{data.desc}</p></div></div>
+                        <div className="kw-stats"><p className="kw-avg" style={{color:tier.color}}>{avg}</p><p className="kw-count">{cp.length} matches</p></div>
+                      </div>
+                      <div className="kw-chips">{data.keywords.map(kw=><button key={kw} className="kw-chip" onClick={()=>{updateFilter("category",cat);setView("dashboard");}}>&ldquo;{kw}&rdquo;</button>)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* ════ SUBREDDITS ════ */}
+            {view === "subreddits" && (
+              <div>
+                <div style={{marginBottom:20}}><h2 style={{fontSize:18,fontWeight:800,color:"var(--white)",marginBottom:6}}>Target Subreddits</h2><p style={{fontSize:12,color:"var(--text-dim)",lineHeight:1.7}}>Click any subreddit to filter the dashboard.</p></div>
+                <div className="sub-grid">
+                  {SUBREDDITS.map(sub => {
+                    const sp = posts.filter(p=>p.subreddit===sub.display);
+                    const avg = sp.length ? Math.round(sp.reduce((s,p)=>s+p.validationScore,0)/sp.length) : 0;
+                    return (
+                      <button key={sub.name} className="sub-card" onClick={()=>{updateFilter("subreddit",sub.display);setView("dashboard");}}>
+                        <div className="sub-bar" style={{width:sub.weight*100+"%"}} />
+                        <div className="sub-inner">
+                          <div><p className="sub-name">{sub.display}</p><p className="sub-focus">{sub.focus}</p><p className="sub-members">{sub.members} members</p></div>
+                          <div style={{textAlign:"right"}}><p className="sub-weight">{Math.round(sub.weight*100)}%</p><p className="sub-weight-label">SIGNAL QUALITY</p>{sp.length>0&&<p style={{marginTop:4,fontSize:10,color:"var(--text-dim)"}}>{sp.length} posts · avg {avg}</p>}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </main>
+
+          <footer className="footer">
+            <div className="footer-inner">
+              <span>v2.0 · {posts.length} posts indexed{meta?.fromCache ? " (cached)" : ""}</span>
+              <button className="footer-link" onClick={()=>setShowScoreGuide(true)}>How scoring works</button>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("app")).render(<App />);
+  </script>
+</body>
+</html>
