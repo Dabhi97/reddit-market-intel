@@ -3,221 +3,143 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reddit Market Intel — Business Opportunity Radar</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+  <title>Reddit Market Intel</title>
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Satoshi', 'DM Sans', -apple-system, sans-serif; background: #0b0f1a; color: #e2e8f0; }
-    ::selection { background: #6366f1; color: #fff; }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Satoshi','DM Sans',-apple-system,sans-serif;background:#0b0f1a;color:#e2e8f0;min-height:100vh}
+    ::selection{background:#6366f1;color:#fff}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:3px}
+    input::placeholder{color:#475569} button{font-family:inherit}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes scaleIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
     @media(max-width:768px){
-      .rmi-header-inner{flex-direction:column !important;gap:10px !important}
-      .rmi-filter-bar{flex-direction:column !important;align-items:stretch !important}
-      .rmi-filter-right{margin-left:0 !important;justify-content:flex-start !important}
-      .rmi-sub-grid{grid-template-columns:1fr !important}
-      .rmi-detail-grid{grid-template-columns:1fr !important}
+      .rmi-hdr{flex-direction:column!important;gap:10px!important}
+      .rmi-fb{flex-direction:column!important;align-items:stretch!important}
+      .rmi-fr{margin-left:0!important;justify-content:flex-start!important}
+      .rmi-sg{grid-template-columns:1fr!important}
+      .rmi-dg{grid-template-columns:1fr!important}
+      .rmi-kg{grid-template-columns:1fr 1fr!important}
     }
   </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-  <script type="text/babel">
-    const { useState, useMemo, useEffect, useCallback } = React;
-    const { ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, PieChart, Pie, Cell } = Recharts;
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useMemo,useEffect,useCallback}=React;
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   REDDIT MARKET INTEL v3.0 — "Editorial Intelligence"
-   Professional dashboard for surfacing business opportunities from Reddit.
-   ═══════════════════════════════════════════════════════════════════════════ */
+const C={bg:"#0b0f1a",sf:"#111827",sfr:"#1a2236",bd:"#1e293b",ba:"#4f46e5",ac:"#6366f1",a2:"#06d6a0",as:"rgba(99,102,241,0.12)",tx:"#e2e8f0",ts:"#94a3b8",tm:"#475569",wh:"#f8fafc",hot:"#f43f5e",warm:"#f59e0b",mild:"#10b981",cool:"#64748b"};
 
-// ─── SCORE RING COMPONENT ───────────────────────────────────────────────────
-const ScoreRing = ({ score = 0, size = 52, stroke = 4 }) => {
-  const safeScore = Math.max(0, Math.min(100, score || 0));
-  const tier = getTier(safeScore);
-  const r = (size - stroke) / 2;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (safeScore / 100) * circ;
-  return (
-    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={tier.color} strokeWidth={stroke}
-          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-          style={{ transition: "stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1)" }} />
-      </svg>
-      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ fontSize: size * 0.3, fontWeight: 700, color: tier.color, fontFamily: "'Satoshi', sans-serif" }}>{safeScore}</span>
-      </div>
-    </div>
+// Score Ring
+function ScoreRing({score=0,size=52,stroke=4}){
+  const s=Math.max(0,Math.min(100,score||0));
+  const t=getTier(s);
+  const r=(size-stroke)/2, ci=2*Math.PI*r, off=ci-(s/100)*ci;
+  return React.createElement("div",{style:{position:"relative",width:size,height:size,flexShrink:0}},
+    React.createElement("svg",{width:size,height:size,style:{transform:"rotate(-90deg)"}},
+      React.createElement("circle",{cx:size/2,cy:size/2,r:r,fill:"none",stroke:"rgba(255,255,255,0.06)",strokeWidth:stroke}),
+      React.createElement("circle",{cx:size/2,cy:size/2,r:r,fill:"none",stroke:t.color,strokeWidth:stroke,strokeDasharray:ci,strokeDashoffset:off,strokeLinecap:"round",style:{transition:"stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1)"}})
+    ),
+    React.createElement("div",{style:{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}},
+      React.createElement("span",{style:{fontSize:size*0.3,fontWeight:700,color:t.color}},s)
+    )
   );
-};
-
-// ─── CONFIG ─────────────────────────────────────────────────────────────────
-const KEYWORD_CATEGORIES = {
-  "Direct Idea Signals": { icon: "\u{1F4A1}", desc: "Explicit startup concepts", keywords: ["startup idea","ai startup","business idea","saas idea","app idea","micro saas"] },
-  "Problem Signals": { icon: "\u{1F525}", desc: "Real pain points people describe", keywords: ["I wish there was","someone should build","why isn't there","I'd pay for","frustrated with","looking for a tool"] },
-  "Validation Signals": { icon: "\u2705", desc: "Founders testing market demand", keywords: ["validate my idea","roast my startup","need beta testers","looking for feedback"] },
-  "Market Gap Signals": { icon: "\u{1F3AF}", desc: "Dissatisfaction with current tools", keywords: ["alternative to","open source alternative","cheaper than","replacement for"] },
-};
-
-const SUBREDDITS = [
-  { name: "startups", display: "r/startups", focus: "Early-stage founders", weight: 0.95, members: "1.2M" },
-  { name: "SaaS", display: "r/SaaS", focus: "SaaS products & markets", weight: 0.9, members: "180K" },
-  { name: "Entrepreneur", display: "r/Entrepreneur", focus: "Broad entrepreneurship", weight: 0.85, members: "3.1M" },
-  { name: "indiehackers", display: "r/indiehackers", focus: "Solo builders & revenue", weight: 0.9, members: "95K" },
-  { name: "smallbusiness", display: "r/smallbusiness", focus: "SMB pain points", weight: 0.8, members: "850K" },
-  { name: "digitalnomad", display: "r/digitalnomad", focus: "Remote work tools", weight: 0.7, members: "2.4M" },
-  { name: "artificial", display: "r/artificial", focus: "AI applications", weight: 0.85, members: "520K" },
-  { name: "ChatGPT", display: "r/ChatGPT", focus: "AI tool demand", weight: 0.75, members: "5.8M" },
-  { name: "webdev", display: "r/webdev", focus: "Developer tools", weight: 0.7, members: "2.1M" },
-  { name: "nocode", display: "r/nocode", focus: "No-code solutions", weight: 0.8, members: "210K" },
-];
-
-const CLUSTERS = [
-  { name: "AI/Automation", icon: "\u{1F916}", terms: ["ai ","artificial intelligence","machine learning","automat","chatgpt","llm","gpt","neural","nlp"] },
-  { name: "Dev Tools", icon: "\u2699\uFE0F", terms: ["developer","dev tool","api","sdk","open source","github","code","programming","i18n"] },
-  { name: "Fintech", icon: "\u{1F4B3}", terms: ["fintech","finance","payment","invoice","banking","expense","tax","accounting","invest"] },
-  { name: "Health", icon: "\u{1F4AA}", terms: ["health","fitness","wellness","workout","medical","wearable","bloodwork","supplement","gym"] },
-  { name: "Education", icon: "\u{1F4DA}", terms: ["education","learning","study","course","quiz","teach","tutor","student"] },
-  { name: "Creator", icon: "\u{1F3A8}", terms: ["creator","youtube","content","social media","influencer","podcast","newsletter","social proof"] },
-  { name: "SMB Ops", icon: "\u{1F3EA}", terms: ["small business","smb","crm","warehouse","inventory","operations","service business","agency"] },
-  { name: "Marketplace", icon: "\u{1F3DB}\uFE0F", terms: ["marketplace","platform","matching","connect","freelancer","co-founder"] },
-  { name: "Productivity", icon: "\u26A1", terms: ["productivity","project management","scheduling","calendar","meeting","notion","airtable","task","jira"] },
-  { name: "Data/Analytics", icon: "\u{1F4CA}", terms: ["analytics","data","intelligence","dashboard","insights","monitoring","competitive","tracking"] },
-];
-
-const CLUSTER_MAP = {}; CLUSTERS.forEach(c => CLUSTER_MAP[c.name] = c);
-const POS_SIGNALS = ["i'd pay","would pay","need this","please build","take my money","game changer","brilliant","love this","great idea","underserved","huge opportunity","seriously need","desperate","shut up and take"];
-const NEG_SIGNALS = ["already exists","been done","won't work","bad idea","oversaturated","too crowded","dead market","waste of time"];
-const COMP_SIGNALS = ["already exists","competitor","similar to","alternative","but better","does this but","currently using","tried"];
-
-const RELEVANCE_TERMS = ["startup","saas","business","idea","build","app","tool","software","product","service","platform","automate","solution","market","customer","revenue","monetize","pain point","problem","niche","mvp","launch","founder","entrepreneur","side project","indie","freelance","agency","ai ","api","no-code","low-code","workflow","dashboard","crm","fintech"];
-
-function isRelevant(title, body) {
-  const t = `${title} ${body||""}`.toLowerCase();
-  return RELEVANCE_TERMS.some(term => t.includes(term));
 }
 
-// ─── SCORING ────────────────────────────────────────────────────────────────
-function scorePost(p) {
-  const up = Math.min(p.upvotes / 500, 1) * 30;
-  const co = Math.min(p.comments / 100, 1) * 25;
-  const se = p.sentimentPositive * 20;
-  const days = (Date.now() - new Date(p.date).getTime()) / 86400000;
-  const re = Math.max(0, 1 - days / 365) * 15;
-  const cp = p.hasCompetitors ? 5 : 10;
-  return Math.round(up + co + se + re + cp);
+// Mini Bar Chart (pure CSS)
+function MiniBar({data,activeCluster,onClickBar}){
+  if(!data||!data.length)return null;
+  const max=Math.max(...data.map(d=>d.avg));
+  return React.createElement("div",{style:{display:"flex",alignItems:"flex-end",gap:4,height:100,padding:"0 4px"}},
+    data.map((d,i)=>{
+      const t=getTier(d.avg);
+      const active=activeCluster===d.name;
+      const dim=activeCluster!=="All"&&!active;
+      return React.createElement("div",{key:i,onClick:()=>onClickBar(d.name),style:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4,cursor:"pointer",opacity:dim?0.3:1,transition:"all 0.2s"}},
+        React.createElement("span",{style:{fontSize:9,fontWeight:700,color:t.color}},d.avg),
+        React.createElement("div",{style:{width:"100%",height:Math.max(8,(d.avg/max)*80),background:active?C.ac:t.color,borderRadius:"4px 4px 2px 2px",transition:"all 0.3s"}}),
+        React.createElement("span",{style:{fontSize:8,color:C.tm,textAlign:"center",lineHeight:1.1,maxWidth:60,overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}},d.name)
+      );
+    })
+  );
 }
 
-function getTier(s) {
-  if (s >= 75) return { label: "Hot", color: "#f43f5e", bg: "rgba(244,63,94,0.1)" };
-  if (s >= 55) return { label: "Warm", color: "#f59e0b", bg: "rgba(245,158,11,0.1)" };
-  if (s >= 35) return { label: "Mild", color: "#10b981", bg: "rgba(16,185,129,0.1)" };
-  return { label: "Cool", color: "#64748b", bg: "rgba(100,116,139,0.08)" };
-}
+// Config
+var KW_CATS={"Direct Idea Signals":{icon:"\uD83D\uDCA1",desc:"Explicit startup concepts",keywords:["startup idea","ai startup","business idea","saas idea","app idea","micro saas"]},"Problem Signals":{icon:"\uD83D\uDD25",desc:"Real pain points people describe",keywords:["I wish there was","someone should build","why isn\u2019t there","I\u2019d pay for","frustrated with","looking for a tool"]},"Validation Signals":{icon:"\u2705",desc:"Founders testing market demand",keywords:["validate my idea","roast my startup","need beta testers","looking for feedback"]},"Market Gap Signals":{icon:"\uD83C\uDFAF",desc:"Dissatisfaction with current tools",keywords:["alternative to","open source alternative","cheaper than","replacement for"]}};
 
-function relDate(d) {
-  const days = Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
-  if (days === 0) return "Today"; if (days === 1) return "1d ago";
-  if (days < 7) return days + "d ago"; if (days < 30) return Math.floor(days/7) + "w ago";
-  return Math.floor(days/30) + "mo ago";
-}
+var SUBS=[{name:"startups",display:"r/startups",focus:"Early-stage founders",weight:0.95,members:"1.2M"},{name:"SaaS",display:"r/SaaS",focus:"SaaS products & markets",weight:0.9,members:"180K"},{name:"Entrepreneur",display:"r/Entrepreneur",focus:"Broad entrepreneurship",weight:0.85,members:"3.1M"},{name:"indiehackers",display:"r/indiehackers",focus:"Solo builders & revenue",weight:0.9,members:"95K"},{name:"smallbusiness",display:"r/smallbusiness",focus:"SMB pain points",weight:0.8,members:"850K"},{name:"digitalnomad",display:"r/digitalnomad",focus:"Remote work tools",weight:0.7,members:"2.4M"},{name:"artificial",display:"r/artificial",focus:"AI applications",weight:0.85,members:"520K"},{name:"ChatGPT",display:"r/ChatGPT",focus:"AI tool demand",weight:0.75,members:"5.8M"},{name:"webdev",display:"r/webdev",focus:"Developer tools",weight:0.7,members:"2.1M"},{name:"nocode",display:"r/nocode",focus:"No-code solutions",weight:0.8,members:"210K"}];
 
-function fmt(n) { return n >= 1000 ? (n/1000).toFixed(1) + "k" : n.toString(); }
+var CLUSTERS=[{name:"AI/Automation",icon:"\uD83E\uDD16",terms:["ai ","artificial intelligence","machine learning","automat","chatgpt","llm","gpt","neural","nlp"]},{name:"Dev Tools",icon:"\u2699\uFE0F",terms:["developer","dev tool","api","sdk","open source","github","code","programming","i18n"]},{name:"Fintech",icon:"\uD83D\uDCB3",terms:["fintech","finance","payment","invoice","banking","expense","tax","accounting","invest"]},{name:"Health",icon:"\uD83D\uDCAA",terms:["health","fitness","wellness","workout","medical","wearable","bloodwork","supplement","gym"]},{name:"Education",icon:"\uD83D\uDCDA",terms:["education","learning","study","course","quiz","teach","tutor","student"]},{name:"Creator",icon:"\uD83C\uDFA8",terms:["creator","youtube","content","social media","influencer","podcast","newsletter","social proof"]},{name:"SMB Ops",icon:"\uD83C\uDFEA",terms:["small business","smb","crm","warehouse","inventory","operations","service business","agency"]},{name:"Marketplace",icon:"\uD83C\uDFDB\uFE0F",terms:["marketplace","platform","matching","connect","freelancer","co-founder"]},{name:"Productivity",icon:"\u26A1",terms:["productivity","project management","scheduling","calendar","meeting","notion","airtable","task","jira"]},{name:"Data/Analytics",icon:"\uD83D\uDCCA",terms:["analytics","data","intelligence","dashboard","insights","monitoring","competitive","tracking"]}];
 
-// ─── REDDIT FETCHER ─────────────────────────────────────────────────────────
-const CORS_PROXIES = [
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-];
-let proxyIdx = null;
+var CMAP={};CLUSTERS.forEach(function(c){CMAP[c.name]=c;});
+var PSIG=["i\u2019d pay","would pay","need this","please build","take my money","game changer","brilliant","love this","great idea","underserved","huge opportunity","seriously need","desperate"];
+var NSIG=["already exists","been done","won\u2019t work","bad idea","oversaturated","too crowded","dead market","waste of time"];
+var CSIG=["already exists","competitor","similar to","alternative","but better","does this but","currently using","tried"];
+var RTERMS=["startup","saas","business","idea","build","app","tool","software","product","service","platform","automate","solution","market","customer","revenue","monetize","pain point","problem","niche","mvp","launch","founder","entrepreneur","side project","indie","freelance","agency","ai ","api","no-code","low-code","workflow","dashboard","crm","fintech"];
 
-async function fetchReddit(keyword, sort, time, subreddit) {
-  const params = new URLSearchParams({ q: keyword, sort, t: time, limit: "20", type: "link", restrict_sr: "true" });
-  const redditUrl = `https://www.reddit.com/r/${subreddit}/search.json?${params}`;
+function isRelevant(title,body){var t=(title+" "+(body||"")).toLowerCase();return RTERMS.some(function(r){return t.indexOf(r)!==-1;});}
+function scorePost(p){var up=Math.min(p.upvotes/500,1)*30,co=Math.min(p.comments/100,1)*25,se=p.sentimentPositive*20,days=(Date.now()-new Date(p.date).getTime())/86400000,re=Math.max(0,1-days/365)*15,cp=p.hasCompetitors?5:10;return Math.round(up+co+se+re+cp);}
+function getTier(s){if(s>=75)return{label:"Hot",color:"#f43f5e",bg:"rgba(244,63,94,0.1)"};if(s>=55)return{label:"Warm",color:"#f59e0b",bg:"rgba(245,158,11,0.1)"};if(s>=35)return{label:"Mild",color:"#10b981",bg:"rgba(16,185,129,0.1)"};return{label:"Cool",color:"#64748b",bg:"rgba(100,116,139,0.08)"};}
+function relDate(d){var days=Math.floor((Date.now()-new Date(d).getTime())/86400000);if(days===0)return"Today";if(days===1)return"1d ago";if(days<7)return days+"d ago";if(days<30)return Math.floor(days/7)+"w ago";return Math.floor(days/30)+"mo ago";}
+function fmt(n){return n>=1000?(n/1000).toFixed(1)+"k":n.toString();}
 
-  if (proxyIdx !== null) {
-    const url = proxyIdx === -1 ? redditUrl : CORS_PROXIES[proxyIdx](redditUrl);
-    const r = await fetch(url, proxyIdx === -1 ? { headers: { Accept: "application/json" } } : {});
-    if (r.ok) { const d = await r.json(); if (d?.data?.children) return d; }
-  }
+// Reddit fetcher
+var PROXIES=[function(u){return"https://api.allorigins.win/raw?url="+encodeURIComponent(u);},function(u){return"https://corsproxy.io/?"+encodeURIComponent(u);},function(u){return"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u);}];
+var pIdx=null;
 
-  try { const r = await fetch(redditUrl, { headers: { Accept: "application/json" } }); if (r.ok) { const d = await r.json(); if (d?.data?.children) { proxyIdx = -1; return d; } } } catch {}
-  for (let i = 0; i < CORS_PROXIES.length; i++) {
-    try { const r = await fetch(CORS_PROXIES[i](redditUrl)); if (r.ok) { const d = await r.json(); if (d?.data?.children) { proxyIdx = i; return d; } } } catch {}
-  }
+async function fetchR(kw,sort,time,sub){
+  var params=new URLSearchParams({q:kw,sort:sort,t:time,limit:"20",type:"link",restrict_sr:"true"});
+  var rUrl="https://www.reddit.com/r/"+sub+"/search.json?"+params;
+  if(pIdx!==null){try{var url=pIdx===-1?rUrl:PROXIES[pIdx](rUrl);var r=await fetch(url,pIdx===-1?{headers:{Accept:"application/json"}}:{});if(r.ok){var d=await r.json();if(d&&d.data&&d.data.children)return d;}}catch(e){pIdx=null;}}
+  try{var r2=await fetch(rUrl,{headers:{Accept:"application/json"}});if(r2.ok){var d2=await r2.json();if(d2&&d2.data&&d2.data.children){pIdx=-1;return d2;}}}catch(e){}
+  for(var i=0;i<PROXIES.length;i++){try{var r3=await fetch(PROXIES[i](rUrl));if(r3.ok){var d3=await r3.json();if(d3&&d3.data&&d3.data.children){pIdx=i;return d3;}}}catch(e){}}
   throw new Error("All methods failed");
 }
 
-function processPost(d, keyword, category) {
-  const text = `${d.title} ${d.selftext||""}`.toLowerCase();
-  let posH=0, negH=0, hasComp=false;
-  POS_SIGNALS.forEach(s => { if(text.includes(s)) posH++; });
-  NEG_SIGNALS.forEach(s => { if(text.includes(s)) negH++; });
-  COMP_SIGNALS.forEach(s => { if(text.includes(s)) hasComp=true; });
-  const tot=posH+negH;
-  let sent = tot===0 ? ((d.upvote_ratio||0.5)>=0.7?0.65:0.45) : Math.min(0.95,Math.max(0.15,posH/tot));
-  if((d.upvote_ratio||0.5)>=0.9) sent=Math.min(0.95,sent+0.1);
-
-  let cluster="Other";
-  for(const cl of CLUSTERS){if(cl.terms.some(t=>text.includes(t))){cluster=cl.name;break;}}
-
-  const p = {
-    id:d.id,title:d.title,subreddit:"r/"+d.subreddit,author:"u/"+d.author,
-    date:new Date(d.created_utc*1000).toISOString().split("T")[0],
-    upvotes:d.ups||d.score||0,comments:d.num_comments||0,
-    url:"https://reddit.com"+d.permalink,
-    snippet:d.selftext?d.selftext.substring(0,280)+(d.selftext.length>280?"...":""):"",
-    sentimentPositive:Math.round(sent*100)/100,hasCompetitors:hasComp,
-    cluster,category,keywordMatch:keyword,
-  };
-  p.validationScore=scorePost(p);
-  return p;
+function processPost(d,kw,cat){
+  var text=(d.title+" "+(d.selftext||"")).toLowerCase();
+  var posH=0,negH=0,hasComp=false;
+  PSIG.forEach(function(s){if(text.indexOf(s)!==-1)posH++;});
+  NSIG.forEach(function(s){if(text.indexOf(s)!==-1)negH++;});
+  CSIG.forEach(function(s){if(text.indexOf(s)!==-1)hasComp=true;});
+  var tot=posH+negH;
+  var sent=tot===0?((d.upvote_ratio||0.5)>=0.7?0.65:0.45):Math.min(0.95,Math.max(0.15,posH/tot));
+  if((d.upvote_ratio||0.5)>=0.9)sent=Math.min(0.95,sent+0.1);
+  var cluster="Other";
+  for(var ci=0;ci<CLUSTERS.length;ci++){if(CLUSTERS[ci].terms.some(function(t){return text.indexOf(t)!==-1;})){cluster=CLUSTERS[ci].name;break;}}
+  var p={id:d.id,title:d.title,subreddit:"r/"+d.subreddit,author:"u/"+d.author,date:new Date(d.created_utc*1000).toISOString().split("T")[0],upvotes:d.ups||d.score||0,comments:d.num_comments||0,url:"https://reddit.com"+d.permalink,snippet:d.selftext?d.selftext.substring(0,280)+(d.selftext.length>280?"...":""):"",sentimentPositive:Math.round(sent*100)/100,hasCompetitors:hasComp,cluster:cluster,category:cat,keywordMatch:kw};
+  p.validationScore=scorePost(p);return p;
 }
 
-// ─── THEME ──────────────────────────────────────────────────────────────────
-const C = {
-  bg: "#0b0f1a", surface: "#111827", surfaceRaised: "#1a2236", border: "#1e293b",
-  borderHover: "#334155", accent: "#6366f1", accent2: "#06d6a0", accentSoft: "rgba(99,102,241,0.12)",
-  text: "#e2e8f0", textSoft: "#94a3b8", textMuted: "#475569", white: "#f8fafc",
-  hot: "#f43f5e", warm: "#f59e0b", mild: "#10b981", cool: "#64748b",
-};
-
 // ─── MAIN APP ───────────────────────────────────────────────────────────────
-function App() {
-  const [view, setView] = useState("dashboard");
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState({ done: 0, total: 0, current: "" });
-  const [meta, setMeta] = useState(null);
-  const [filters, setFilters] = useState({ cluster:"All", category:"All", subreddit:"All", sort:"validationScore", search:"", minScore:0 });
-  const [expandedId, setExpandedId] = useState(null);
-  const [saved, setSaved] = useState(new Set());
-  const [showSaved, setShowSaved] = useState(false);
-  const [showGuide, setShowGuide] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
-  const [mounted, setMounted] = useState(false);
+function App(){
+  const [view,setView]=useState("dashboard");
+  const [posts,setPosts]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [progress,setProgress]=useState({done:0,total:0,current:""});
+  const [meta,setMeta]=useState(null);
+  const [filters,setFilters]=useState({cluster:"All",category:"All",subreddit:"All",sort:"validationScore",search:"",minScore:0});
+  const [expId,setExpId]=useState(null);
+  const [saved,setSaved]=useState(new Set());
+  const [showSaved,setShowSaved]=useState(false);
+  const [showGuide,setShowGuide]=useState(false);
+  const [showWelcome,setShowWelcome]=useState(true);
+  const [mounted,setMounted]=useState(false);
 
-  useEffect(() => { setTimeout(() => setMounted(true), 80); }, []);
+  useEffect(function(){setTimeout(function(){setMounted(true);},80);},[]);
+  const sf=useCallback(function(k,v){setFilters(function(f){return Object.assign({},f,{[k]:v});});},[]);
+  const clr=useCallback(function(){setFilters({cluster:"All",category:"All",subreddit:"All",sort:"validationScore",search:"",minScore:0});setShowSaved(false);},[]);
+  const tgSave=useCallback(function(id,e){e.stopPropagation();setSaved(function(s){var n=new Set(s);if(n.has(id))n.delete(id);else n.add(id);return n;});},[]);
 
-  const set = useCallback((k,v) => setFilters(f=>({...f,[k]:v})), []);
-  const clear = useCallback(() => { setFilters({ cluster:"All",category:"All",subreddit:"All",sort:"validationScore",search:"",minScore:0 }); setShowSaved(false); }, []);
-  const toggleSave = useCallback((id,e) => { e.stopPropagation(); setSaved(s=>{const n=new Set(s);n.has(id)?n.delete(id):n.add(id);return n;}); }, []);
-
-  // ─── FETCH ──────────────────────────────────────────────────────────────
-  const doFetch = useCallback(async () => {
+  const doFetch=useCallback(async function(){
     setLoading(true);
-    const searchPairs = [];
-    const kws = [
+    var pairs=[];
+    var kws=[
       {kw:"startup idea",cat:"Direct Idea Signals",subs:["startups","SaaS","Entrepreneur","indiehackers"]},
       {kw:"business idea",cat:"Direct Idea Signals",subs:["startups","Entrepreneur","indiehackers"]},
       {kw:"saas idea",cat:"Direct Idea Signals",subs:["SaaS","startups","indiehackers"]},
@@ -226,425 +148,277 @@ function App() {
       {kw:"micro saas",cat:"Direct Idea Signals",subs:["SaaS","indiehackers"]},
       {kw:"someone should build",cat:"Problem Signals",subs:["startups","SaaS","smallbusiness","nocode"]},
       {kw:"I wish there was",cat:"Problem Signals",subs:["startups","Entrepreneur","smallbusiness"]},
-      {kw:"I'd pay for",cat:"Problem Signals",subs:["startups","SaaS","smallbusiness","Entrepreneur"]},
       {kw:"validate my idea",cat:"Validation Signals",subs:["startups","indiehackers","SaaS"]},
       {kw:"roast my startup",cat:"Validation Signals",subs:["startups","indiehackers"]},
       {kw:"alternative to",cat:"Market Gap Signals",subs:["SaaS","webdev","nocode","startups"]},
     ];
-    kws.forEach(({kw,cat,subs})=>subs.forEach(s=>searchPairs.push({keyword:kw,category:cat,subreddit:s})));
-
-    setProgress({done:0,total:searchPairs.length,current:""});
-    const all = new Map(); let errs=0, done=0;
-
-    for(let i=0;i<searchPairs.length;i+=3){
-      const batch=searchPairs.slice(i,i+3);
-      await Promise.all(batch.map(async({keyword,category,subreddit})=>{
+    kws.forEach(function(k){k.subs.forEach(function(s){pairs.push({keyword:k.kw,category:k.cat,subreddit:s});});});
+    setProgress({done:0,total:pairs.length,current:""});
+    var all=new Map(),errs=0,done=0;
+    for(var i=0;i<pairs.length;i+=3){
+      var batch=pairs.slice(i,i+3);
+      await Promise.all(batch.map(async function(p){
         try{
-          setProgress(p=>({...p,current:`${keyword} in r/${subreddit}`}));
-          const data=await fetchReddit(keyword,"top","month",subreddit);
-          for(const raw of (data?.data?.children||[])){
-            if(raw.kind!=="t3"||all.has(raw.data.id))continue;
-            if(!isRelevant(raw.data.title,raw.data.selftext))continue;
-            all.set(raw.data.id,processPost(raw.data,keyword,category));
-          }
-        }catch{errs++;}
+          setProgress(function(pr){return Object.assign({},pr,{current:p.keyword+" in r/"+p.subreddit});});
+          var data=await fetchR(p.keyword,"top","month",p.subreddit);
+          var children=(data&&data.data&&data.data.children)||[];
+          children.forEach(function(raw){
+            if(raw.kind!=="t3"||all.has(raw.data.id))return;
+            if(!isRelevant(raw.data.title,raw.data.selftext))return;
+            all.set(raw.data.id,processPost(raw.data,p.keyword,p.category));
+          });
+        }catch(e){errs++;}
       }));
       done+=batch.length;
-      setProgress(p=>({...p,done}));
-      if(i+3<searchPairs.length) await new Promise(r=>setTimeout(r,600));
+      setProgress(function(pr){return Object.assign({},pr,{done:done});});
+      if(i+3<pairs.length)await new Promise(function(r){setTimeout(r,600);});
     }
-
-    const sorted=Array.from(all.values()).sort((a,b)=>b.validationScore-a.validationScore);
+    var sorted=Array.from(all.values()).sort(function(a,b){return b.validationScore-a.validationScore;});
     setPosts(sorted);
-    setMeta({total:sorted.length,keywords:searchPairs.length,errors:errs,at:new Date().toISOString()});
+    setMeta({total:sorted.length,keywords:pairs.length,errors:errs,at:new Date().toISOString()});
     setLoading(false);
   },[]);
 
-  useEffect(()=>{doFetch();},[]);
+  useEffect(function(){doFetch();},[]);
 
-  const hasFilters=filters.cluster!=="All"||filters.category!=="All"||filters.subreddit!=="All"||filters.minScore>0||filters.search;
+  var hasF=filters.cluster!=="All"||filters.category!=="All"||filters.subreddit!=="All"||filters.minScore>0||filters.search;
 
-  const filtered = useMemo(()=>{
-    let p=[...posts];
-    if(showSaved)p=p.filter(x=>saved.has(x.id));
-    if(filters.cluster!=="All")p=p.filter(x=>x.cluster===filters.cluster);
-    if(filters.category!=="All")p=p.filter(x=>x.category===filters.category);
-    if(filters.subreddit!=="All")p=p.filter(x=>x.subreddit===filters.subreddit);
-    if(filters.minScore>0)p=p.filter(x=>x.validationScore>=filters.minScore);
-    if(filters.search){const q=filters.search.toLowerCase();p=p.filter(x=>x.title.toLowerCase().includes(q)||x.snippet.toLowerCase().includes(q)||x.cluster.toLowerCase().includes(q));}
-    const fns={validationScore:(a,b)=>b.validationScore-a.validationScore,upvotes:(a,b)=>b.upvotes-a.upvotes,comments:(a,b)=>b.comments-a.comments,date:(a,b)=>new Date(b.date)-new Date(a.date)};
-    p.sort(fns[filters.sort]||fns.validationScore);
-    return p;
+  var filtered=useMemo(function(){
+    var p=posts.slice();
+    if(showSaved)p=p.filter(function(x){return saved.has(x.id);});
+    if(filters.cluster!=="All")p=p.filter(function(x){return x.cluster===filters.cluster;});
+    if(filters.category!=="All")p=p.filter(function(x){return x.category===filters.category;});
+    if(filters.subreddit!=="All")p=p.filter(function(x){return x.subreddit===filters.subreddit;});
+    if(filters.minScore>0)p=p.filter(function(x){return x.validationScore>=filters.minScore;});
+    if(filters.search){var q=filters.search.toLowerCase();p=p.filter(function(x){return x.title.toLowerCase().indexOf(q)!==-1||x.snippet.toLowerCase().indexOf(q)!==-1||x.cluster.toLowerCase().indexOf(q)!==-1;});}
+    var fns={validationScore:function(a,b){return b.validationScore-a.validationScore;},upvotes:function(a,b){return b.upvotes-a.upvotes;},comments:function(a,b){return b.comments-a.comments;},date:function(a,b){return new Date(b.date)-new Date(a.date);}};
+    p.sort(fns[filters.sort]||fns.validationScore);return p;
   },[posts,filters,showSaved,saved]);
 
-  const clusterStats=useMemo(()=>{
-    const s={};posts.forEach(p=>{if(!s[p.cluster])s[p.cluster]={count:0,total:0,scores:[]};s[p.cluster].count++;s[p.cluster].total+=p.validationScore;s[p.cluster].scores.push(p.validationScore);});
-    return Object.entries(s).map(([n,d])=>({name:n,...d,avg:Math.round(d.total/d.count)})).sort((a,b)=>b.avg-a.avg);
+  var cStats=useMemo(function(){
+    var s={};posts.forEach(function(p){if(!s[p.cluster])s[p.cluster]={count:0,total:0};s[p.cluster].count++;s[p.cluster].total+=p.validationScore;});
+    return Object.entries(s).map(function(e){return{name:e[0],count:e[1].count,total:e[1].total,avg:Math.round(e[1].total/e[1].count)};}).sort(function(a,b){return b.avg-a.avg;});
   },[posts]);
 
-  const catStats=useMemo(()=>{
-    const s={};posts.forEach(p=>{if(!s[p.category])s[p.category]={count:0,total:0};s[p.category].count++;s[p.category].total+=p.validationScore;});
-    return Object.entries(s).map(([n,d])=>({name:n,...d,avg:Math.round(d.total/d.count)}));
+  var catStats=useMemo(function(){
+    var s={};posts.forEach(function(p){if(!s[p.category])s[p.category]={count:0,total:0};s[p.category].count++;s[p.category].total+=p.validationScore;});
+    return Object.entries(s).map(function(e){return{name:e[0],count:e[1].count,avg:Math.round(e[1].total/e[1].count)};});
   },[posts]);
 
-  const ins=useMemo(()=>({
-    hot:posts.filter(p=>p.validationScore>=75).length,
-    avg:posts.length?Math.round(posts.reduce((s,p)=>s+p.validationScore,0)/posts.length):0,
-    blue:posts.filter(p=>!p.hasCompetitors).length,
-    top:clusterStats[0]?.name||"\u2014",
-  }),[posts,clusterStats]);
+  var ins=useMemo(function(){return{hot:posts.filter(function(p){return p.validationScore>=75;}).length,avg:posts.length?Math.round(posts.reduce(function(s,p){return s+p.validationScore;},0)/posts.length):0,blue:posts.filter(function(p){return!p.hasCompetitors;}).length,top:cStats.length?cStats[0].name:"\u2014"};},[posts,cStats]);
 
-  const pieData=catStats.map(c=>({name:c.name.replace(" Signals",""),value:c.count,color:c.name.includes("Problem")?"#f43f5e":c.name.includes("Direct")?"#6366f1":c.name.includes("Validation")?"#10b981":"#f59e0b"}));
-
-  // ─── STYLES ─────────────────────────────────────────────────────────────
-  const font = "'Satoshi', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif";
+  // Styles
+  var selSt={padding:"8px 12px",borderRadius:10,border:"1px solid "+C.bd,background:C.bg,color:C.tx,fontSize:12,cursor:"pointer",outline:"none"};
+  var navBtn=function(active){return{padding:"8px 16px",borderRadius:10,border:active?"1px solid "+C.ba:"1px solid transparent",background:active?C.as:"transparent",color:active?C.ac:C.tm,fontSize:12,fontWeight:600,cursor:"pointer",transition:"all 0.15s",textTransform:"capitalize"};};
 
   return (
-    <div style={{ fontFamily: font, background: C.bg, color: C.text, minHeight: "100vh" }}>
-      <style>{`
-        @import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
-        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes scaleIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
-        *{box-sizing:border-box;margin:0;padding:0}
-        ::selection{background:${C.accent};color:#fff}
-        ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:${C.border};border-radius:3px}
-        @media(max-width:768px){
-          .rmi-kpi-grid{grid-template-columns:1fr 1fr !important}
-          .rmi-filter-bar{flex-direction:column !important;align-items:stretch !important}
-          .rmi-filter-right{margin-left:0 !important;justify-content:flex-start !important}
-          .rmi-sub-grid{grid-template-columns:1fr !important}
-          .rmi-header-inner{flex-direction:column !important;gap:10px !important}
-          .rmi-detail-grid{grid-template-columns:1fr !important}
-        }
-        input::placeholder{color:${C.textMuted}}
-        button{font-family:${font}}
-      `}</style>
+    <div style={{minHeight:"100vh"}}>
 
-      {/* ─── WELCOME ──────────────────────────────────────────────────── */}
-      {showWelcome && (
-        <div style={{ position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,0.8)",backdropFilter:"blur(16px)" }} onClick={()=>setShowWelcome(false)}>
-          <div onClick={e=>e.stopPropagation()} style={{ background:C.surface,border:`1px solid ${C.border}`,borderRadius:20,padding:"40px 36px",maxWidth:480,width:"90%",animation:"scaleIn 0.3s ease" }}>
-            <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:24}}>
-              <div style={{width:48,height:48,borderRadius:12,background:`linear-gradient(135deg,${C.accent},${C.accent2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,fontWeight:900,color:"#fff"}}>R</div>
-              <div><h2 style={{fontSize:22,fontWeight:900,color:C.white,letterSpacing:"-0.03em"}}>Reddit Market Intel</h2><p style={{fontSize:13,color:C.textSoft,marginTop:2}}>Business opportunity radar</p></div>
-            </div>
-            <p style={{fontSize:14,color:C.textSoft,lineHeight:1.75,marginBottom:24}}>
-              Real-time business ideas from Reddit — automatically scored, clustered, and ranked so you find opportunities fast.
-            </p>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:28}}>
-              {[{i:"\u{1F4CA}",t:"Validation Scores",d:"0–100 based on 5 factors"},{i:"\u{1F50D}",t:"Smart Keywords",d:"4 signal categories"},{i:"\u{1F5C2}\uFE0F",t:"Auto Clusters",d:"Grouped by theme"},{i:"\u2B50",t:"Save Ideas",d:"Build your shortlist"}].map((x,i)=>(
-                <div key={i} style={{background:C.bg,borderRadius:12,padding:"14px 16px"}}>
-                  <span style={{fontSize:20}}>{x.i}</span>
-                  <p style={{fontSize:12,fontWeight:700,color:C.white,marginTop:6}}>{x.t}</p>
-                  <p style={{fontSize:11,color:C.textMuted,marginTop:2}}>{x.d}</p>
-                </div>
-              ))}
-            </div>
-            <button onClick={()=>setShowWelcome(false)} style={{width:"100%",padding:"14px 0",borderRadius:12,border:"none",cursor:"pointer",background:`linear-gradient(135deg,${C.accent},#818cf8)`,color:"#fff",fontSize:15,fontWeight:700,letterSpacing:"-0.01em"}}>
-              Start Exploring
-            </button>
+      {/* Welcome */}
+      {showWelcome && <div style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,0.8)",backdropFilter:"blur(16px)"}} onClick={function(){setShowWelcome(false);}}>
+        <div onClick={function(e){e.stopPropagation();}} style={{background:C.sf,border:"1px solid "+C.bd,borderRadius:20,padding:"40px 36px",maxWidth:480,width:"90%",animation:"scaleIn 0.3s ease"}}>
+          <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:24}}>
+            <div style={{width:48,height:48,borderRadius:12,background:"linear-gradient(135deg,"+C.ac+","+C.a2+")",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,fontWeight:900,color:"#fff"}}>R</div>
+            <div><h2 style={{fontSize:22,fontWeight:900,color:C.wh}}>Reddit Market Intel</h2><p style={{fontSize:13,color:C.ts,marginTop:2}}>Business opportunity radar</p></div>
           </div>
-        </div>
-      )}
-
-      {/* ─── SCORE GUIDE ──────────────────────────────────────────────── */}
-      {showGuide && (
-        <div style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,0.75)",backdropFilter:"blur(8px)"}} onClick={()=>setShowGuide(false)}>
-          <div onClick={e=>e.stopPropagation()} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:20,padding:"32px 28px",maxWidth:420,width:"90%",animation:"scaleIn 0.2s ease"}}>
-            <h3 style={{fontSize:18,fontWeight:800,color:C.white,marginBottom:16,letterSpacing:"-0.02em"}}>Scoring Methodology</h3>
-            {[{l:"Upvotes",p:30,c:C.accent,d:"Community agreement"},{l:"Comments",p:25,c:C.accent2,d:"Discussion depth"},{l:"Sentiment",p:20,c:C.warm,d:"Positive language"},{l:"Recency",p:15,c:"#a78bfa",d:"Time decay"},{l:"Competition",p:10,c:C.hot,d:"Blue ocean bonus"}].map(f=>(
-              <div key={f.l} style={{marginBottom:14}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:13,fontWeight:600,color:C.text}}>{f.l}</span><span style={{fontSize:12,fontWeight:700,color:f.c}}>{f.p}%</span></div>
-                <div style={{height:5,borderRadius:3,background:"rgba(255,255,255,0.05)",overflow:"hidden"}}><div style={{height:"100%",width:f.p+"%",background:f.c,borderRadius:3}}/></div>
-                <p style={{fontSize:11,color:C.textMuted,marginTop:3}}>{f.d}</p>
-              </div>
-            ))}
-            <button onClick={()=>setShowGuide(false)} style={{width:"100%",marginTop:8,padding:"10px",borderRadius:10,border:`1px solid ${C.border}`,background:"transparent",color:C.textSoft,fontSize:13,fontWeight:600,cursor:"pointer"}}>Got it</button>
+          <p style={{fontSize:14,color:C.ts,lineHeight:1.75,marginBottom:24}}>Real-time business ideas from Reddit, scored and ranked so you find opportunities fast.</p>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:28}}>
+            {[{i:"\uD83D\uDCCA",t:"Live Scoring",d:"0\u2013100 based on 5 factors"},{i:"\uD83D\uDD0D",t:"Smart Keywords",d:"4 signal categories"},{i:"\uD83D\uDDC2\uFE0F",t:"Auto Clusters",d:"Grouped by theme"},{i:"\u2B50",t:"Save Ideas",d:"Build your shortlist"}].map(function(x,i){
+              return <div key={i} style={{background:C.bg,borderRadius:12,padding:"14px 16px"}}>
+                <span style={{fontSize:20}}>{x.i}</span>
+                <p style={{fontSize:12,fontWeight:700,color:C.wh,marginTop:6}}>{x.t}</p>
+                <p style={{fontSize:11,color:C.tm,marginTop:2}}>{x.d}</p>
+              </div>;
+            })}
           </div>
+          <button onClick={function(){setShowWelcome(false);}} style={{width:"100%",padding:"14px 0",borderRadius:12,border:"none",cursor:"pointer",background:"linear-gradient(135deg,"+C.ac+",#818cf8)",color:"#fff",fontSize:15,fontWeight:700}}>Start Exploring</button>
         </div>
-      )}
+      </div>}
 
-      {/* ─── HEADER ───────────────────────────────────────────────────── */}
-      <header style={{borderBottom:`1px solid ${C.border}`,padding:"14px 28px",position:"sticky",top:0,zIndex:100,background:"rgba(11,15,26,0.92)",backdropFilter:"blur(20px)"}}>
-        <div className="rmi-header-inner" style={{display:"flex",justifyContent:"space-between",alignItems:"center",maxWidth:1360,margin:"0 auto"}}>
+      {/* Score Guide */}
+      {showGuide && <div style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,0.75)",backdropFilter:"blur(8px)"}} onClick={function(){setShowGuide(false);}}>
+        <div onClick={function(e){e.stopPropagation();}} style={{background:C.sf,border:"1px solid "+C.bd,borderRadius:20,padding:28,maxWidth:420,width:"90%",animation:"scaleIn 0.2s ease"}}>
+          <h3 style={{fontSize:18,fontWeight:800,color:C.wh,marginBottom:16}}>Scoring Methodology</h3>
+          {[{l:"Upvotes",p:30,c:C.ac,d:"Community agreement"},{l:"Comments",p:25,c:C.a2,d:"Discussion depth"},{l:"Sentiment",p:20,c:C.warm,d:"Positive language"},{l:"Recency",p:15,c:"#a78bfa",d:"Time decay"},{l:"Competition",p:10,c:C.hot,d:"Blue ocean bonus"}].map(function(f,i){
+            return <div key={i} style={{marginBottom:14}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:13,fontWeight:600,color:C.tx}}>{f.l}</span><span style={{fontSize:12,fontWeight:700,color:f.c}}>{f.p}%</span></div>
+              <div style={{height:5,borderRadius:3,background:"rgba(255,255,255,0.05)",overflow:"hidden"}}><div style={{height:"100%",width:f.p+"%",background:f.c,borderRadius:3}}/></div>
+              <p style={{fontSize:11,color:C.tm,marginTop:3}}>{f.d}</p>
+            </div>;
+          })}
+          <button onClick={function(){setShowGuide(false);}} style={{width:"100%",marginTop:8,padding:10,borderRadius:10,border:"1px solid "+C.bd,background:"transparent",color:C.ts,fontSize:13,fontWeight:600,cursor:"pointer"}}>Got it</button>
+        </div>
+      </div>}
+
+      {/* Header */}
+      <header style={{borderBottom:"1px solid "+C.bd,padding:"14px 28px",position:"sticky",top:0,zIndex:100,background:"rgba(11,15,26,0.92)",backdropFilter:"blur(20px)"}}>
+        <div className="rmi-hdr" style={{display:"flex",justifyContent:"space-between",alignItems:"center",maxWidth:1360,margin:"0 auto"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <div style={{width:34,height:34,borderRadius:10,background:`linear-gradient(135deg,${C.accent},${C.accent2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:900,color:"#fff"}}>R</div>
-            <div>
-              <h1 style={{fontSize:16,fontWeight:800,color:C.white,letterSpacing:"-0.03em"}}>Market Intel</h1>
-              <p style={{fontSize:9,color:C.textMuted,letterSpacing:"0.15em",fontWeight:600,textTransform:"uppercase"}}>Reddit Opportunity Radar</p>
-            </div>
+            <div style={{width:34,height:34,borderRadius:10,background:"linear-gradient(135deg,"+C.ac+","+C.a2+")",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:900,color:"#fff"}}>R</div>
+            <div><h1 style={{fontSize:16,fontWeight:800,color:C.wh}}>Market Intel</h1><p style={{fontSize:9,color:C.tm,letterSpacing:"0.15em",fontWeight:600}}>REDDIT OPPORTUNITY RADAR</p></div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:6}}>
-            {["dashboard","keywords","sources"].map(v=>(
-              <button key={v} onClick={()=>setView(v)} style={{padding:"8px 16px",borderRadius:10,border:view===v?`1px solid ${C.accent}`:"1px solid transparent",background:view===v?C.accentSoft:"transparent",color:view===v?C.accent:C.textMuted,fontSize:12,fontWeight:600,cursor:"pointer",transition:"all 0.15s",textTransform:"capitalize"}}>{v}</button>
-            ))}
-            <button onClick={doFetch} disabled={loading} style={{padding:"8px 16px",borderRadius:10,border:`1px solid ${C.border}`,background:"transparent",color:loading?C.textMuted:C.accent2,fontSize:12,fontWeight:600,cursor:loading?"default":"pointer",opacity:loading?0.5:1,transition:"all 0.15s"}}>
-              {loading?"\u21BB Fetching...":"\u21BB Refresh"}
-            </button>
+            {["dashboard","keywords","sources"].map(function(v){return <button key={v} style={navBtn(view===v)} onClick={function(){setView(v);}}>{v}</button>;})}
+            <button onClick={function(){doFetch();}} disabled={loading} style={{padding:"8px 16px",borderRadius:10,border:"1px solid "+C.bd,background:"transparent",color:loading?C.tm:C.a2,fontSize:12,fontWeight:600,cursor:loading?"default":"pointer",opacity:loading?0.5:1}}>{loading?"\u21BB Fetching...":"\u21BB Refresh"}</button>
           </div>
         </div>
       </header>
 
       <main style={{maxWidth:1360,margin:"0 auto",padding:"24px 28px"}}>
-
-        {/* ─── LOADING ────────────────────────────────────────────────── */}
-        {loading && (
-          <div style={{textAlign:"center",padding:"80px 20px",animation:"fadeUp 0.4s ease"}}>
-            <div style={{width:40,height:40,border:`3px solid ${C.border}`,borderTopColor:C.accent,borderRadius:"50%",animation:"spin 0.8s linear infinite",margin:"0 auto 20px"}}/>
-            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-            <p style={{fontSize:15,fontWeight:600,color:C.text}}>Scanning Reddit for opportunities</p>
-            <p style={{fontSize:13,color:C.textMuted,marginTop:6}}>{progress.current||"Initializing..."}</p>
-            <div style={{maxWidth:320,margin:"20px auto 0"}}>
-              <div style={{height:4,borderRadius:2,background:"rgba(255,255,255,0.05)",overflow:"hidden"}}>
-                <div style={{height:"100%",width:progress.total?(progress.done/progress.total*100)+"%":"0%",background:`linear-gradient(90deg,${C.accent},${C.accent2})`,borderRadius:2,transition:"width 0.3s"}}/>
-              </div>
-              <p style={{fontSize:11,color:C.textMuted,marginTop:8}}>{progress.done} / {progress.total} searches</p>
-            </div>
+        {/* Loading */}
+        {loading && <div style={{textAlign:"center",padding:"80px 20px",animation:"fadeUp 0.4s ease"}}>
+          <div style={{width:40,height:40,border:"3px solid "+C.bd,borderTopColor:C.ac,borderRadius:"50%",animation:"spin 0.8s linear infinite",margin:"0 auto 20px"}}/>
+          <p style={{fontSize:15,fontWeight:600,color:C.tx}}>Scanning Reddit for opportunities</p>
+          <p style={{fontSize:13,color:C.tm,marginTop:6}}>{progress.current||"Initializing..."}</p>
+          <div style={{maxWidth:320,margin:"20px auto 0"}}>
+            <div style={{height:4,borderRadius:2,background:"rgba(255,255,255,0.05)",overflow:"hidden"}}><div style={{height:"100%",width:progress.total?(progress.done/progress.total*100)+"%":"0%",background:"linear-gradient(90deg,"+C.ac+","+C.a2+")",borderRadius:2,transition:"width 0.3s"}}/></div>
+            <p style={{fontSize:11,color:C.tm,marginTop:8}}>{progress.done} / {progress.total} searches</p>
           </div>
-        )}
+        </div>}
 
-        {/* ═══════ DASHBOARD ═══════ */}
-        {!loading && view==="dashboard" && (
-          <div style={{animation:"fadeUp 0.4s ease"}}>
-            {/* Error state */}
-            {meta?.errors > 0 && posts.length > 0 && (
-              <div style={{padding:"10px 18px",background:"rgba(244,63,94,0.06)",border:"1px solid rgba(244,63,94,0.15)",borderRadius:10,marginBottom:14,fontSize:12,color:C.textSoft}}>
-                {meta.errors} searches had issues — some results may be missing. Try refreshing.
-              </div>
-            )}
-            {posts.length === 0 && meta && (
-              <div style={{textAlign:"center",padding:"60px 20px",background:C.surface,borderRadius:16,border:`1px solid ${C.border}`,marginBottom:20}}>
-                <p style={{fontSize:32,marginBottom:12}}>{"\u26A0\uFE0F"}</p>
-                <p style={{fontSize:15,fontWeight:600,color:C.white}}>Couldn't load data</p>
-                <p style={{fontSize:13,color:C.textMuted,marginTop:6}}>Reddit may be rate-limiting. Wait a minute and click Refresh.</p>
-              </div>
-            )}
-
-            {/* KPI + Charts Row */}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(160px, 1fr))",gap:12,marginBottom:20}}>
-              {[{l:"Hot Ideas",v:ins.hot,s:"Score \u2265 75",c:C.hot},{l:"Avg Score",v:ins.avg,s:`${posts.length} posts`,c:C.accent},{l:"Blue Ocean",v:ins.blue,s:"No competitors",c:C.accent2},{l:"Top Cluster",v:ins.top,s:"Highest avg",c:C.warm,sm:true}].map((k,i)=>(
-                <div key={i} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:14,padding:"20px 22px",position:"relative",overflow:"hidden"}}>
-                  <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,${k.c},transparent)`}}/>
-                  <p style={{fontSize:11,color:C.textMuted,fontWeight:600,letterSpacing:"0.06em",textTransform:"uppercase"}}>{k.l}</p>
-                  <p style={{fontSize:k.sm?18:34,fontWeight:800,color:C.white,marginTop:8,letterSpacing:"-0.03em",lineHeight:1}}>{k.v}</p>
-                  <p style={{fontSize:11,color:C.textMuted,marginTop:4}}>{k.s}</p>
-                </div>
-              ))}
-              {/* Signal Distribution Chart */}
-              {pieData.length > 0 && (
-              <div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:14,padding:"16px 20px",display:"flex",alignItems:"center",gap:16,minWidth:260}}>
-                <PieChart width={80} height={80}>
-                  <Pie data={pieData} cx={40} cy={40} innerRadius={24} outerRadius={36} paddingAngle={3} dataKey="value" stroke="none">
-                    {pieData.map((e,i)=><Cell key={i} fill={e.color}/>)}
-                  </Pie>
-                </PieChart>
-                <div style={{flex:1}}>
-                  <p style={{fontSize:11,color:C.textMuted,fontWeight:600,letterSpacing:"0.06em",textTransform:"uppercase",marginBottom:8}}>Signal Mix</p>
-                  {pieData.map((d,i)=>(
-                    <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                      <div style={{display:"flex",alignItems:"center",gap:6}}>
-                        <div style={{width:8,height:8,borderRadius:2,background:d.color}}/>
-                        <span style={{fontSize:11,color:C.textSoft}}>{d.name}</span>
-                      </div>
-                      <span style={{fontSize:11,fontWeight:700,color:C.text}}>{d.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              )}
-            </div>
-
-            {/* Cluster Bar Chart */}
-            {clusterStats.length > 0 && (
-              <div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:14,padding:"18px 22px",marginBottom:16}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-                  <p style={{fontSize:12,fontWeight:700,color:C.textSoft,letterSpacing:"0.04em"}}>Clusters by Average Score</p>
-                  <button onClick={()=>setShowGuide(true)} style={{background:C.accentSoft,border:"none",borderRadius:8,padding:"5px 12px",color:C.accent,fontSize:11,fontWeight:600,cursor:"pointer"}}>How scoring works</button>
-                </div>
-                <div style={{height:140}}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={clusterStats.map(c=>({name:c.name,avg:c.avg,count:c.count}))}>
-                      <XAxis dataKey="name" tick={{fontSize:10,fill:C.textMuted}} axisLine={false} tickLine={false}/>
-                      <Tooltip contentStyle={{background:C.surfaceRaised,border:`1px solid ${C.border}`,borderRadius:8,fontSize:12,color:C.text}} cursor={{fill:"rgba(255,255,255,0.03)"}}/>
-                      <Bar dataKey="avg" radius={[4,4,0,0]} cursor="pointer" onClick={(d)=>set("cluster",filters.cluster===d.name?"All":d.name)}>
-                        {clusterStats.map((c,i)=><Cell key={i} fill={filters.cluster===c.name?C.accent:getTier(c.avg).color} opacity={filters.cluster!=="All"&&filters.cluster!==c.name?0.3:1}/>)}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            )}
-
-            {/* Filters */}
-            <div className="rmi-filter-bar" style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",marginBottom:16,padding:"12px 18px",background:C.surface,borderRadius:12,border:`1px solid ${C.border}`}}>
-              <input type="text" placeholder="Search ideas..." value={filters.search} onChange={e=>set("search",e.target.value)}
-                style={{padding:"8px 14px",borderRadius:10,border:`1px solid ${C.border}`,background:C.bg,color:C.text,fontSize:13,fontFamily:font,width:200,outline:"none"}}/>
-              {[{k:"cluster",opts:clusterStats.map(c=>c.name),label:"All Clusters"},{k:"category",opts:Object.keys(KEYWORD_CATEGORIES),label:"All Signals"},{k:"subreddit",opts:SUBREDDITS.map(s=>s.display),label:"All Subreddits"}].map(f=>(
-                <select key={f.k} value={filters[f.k]} onChange={e=>set(f.k,e.target.value)} style={{padding:"8px 12px",borderRadius:10,border:`1px solid ${C.border}`,background:C.bg,color:C.text,fontSize:12,fontFamily:font,cursor:"pointer",outline:"none"}}>
-                  <option value="All">{f.label}</option>{f.opts.map(o=><option key={o} value={o}>{o}</option>)}
-                </select>
-              ))}
-              <select value={filters.sort} onChange={e=>set("sort",e.target.value)} style={{padding:"8px 12px",borderRadius:10,border:`1px solid ${C.border}`,background:C.bg,color:C.text,fontSize:12,fontFamily:font,cursor:"pointer",outline:"none"}}>
-                <option value="validationScore">By Score</option><option value="upvotes">By Upvotes</option><option value="comments">By Comments</option><option value="date">By Date</option>
-              </select>
-              <div style={{display:"flex",alignItems:"center",gap:6}}>
-                <span style={{fontSize:11,color:C.textMuted,fontWeight:600}}>Min</span>
-                <input type="range" min={0} max={90} step={5} value={filters.minScore} onChange={e=>set("minScore",+e.target.value)} style={{width:80,accentColor:C.accent}}/>
-                <span style={{fontSize:12,fontWeight:700,color:C.white,minWidth:20}}>{filters.minScore}</span>
-              </div>
-              <div className="rmi-filter-right" style={{marginLeft:"auto",display:"flex",gap:6}}>
-                <button onClick={()=>setShowSaved(!showSaved)} style={{padding:"7px 14px",borderRadius:20,border:`1px solid ${showSaved?C.warm:C.border}`,background:showSaved?"rgba(245,158,11,0.1)":"transparent",color:showSaved?C.warm:C.textMuted,fontSize:12,fontWeight:600,cursor:"pointer"}}>
-                  {"\u2605"} {saved.size} Saved
-                </button>
-                {(hasFilters||showSaved)&&<button onClick={clear} style={{padding:"7px 14px",borderRadius:20,border:`1px solid ${C.border}`,background:"transparent",color:C.hot,fontSize:12,fontWeight:600,cursor:"pointer"}}>Clear</button>}
-              </div>
-            </div>
-
-            {/* Results */}
-            <p style={{fontSize:12,color:C.textMuted,marginBottom:12}}>{filtered.length} idea{filtered.length!==1?"s":""}{hasFilters?" (filtered)":""}</p>
-
-            {filtered.length===0 && (
-              <div style={{textAlign:"center",padding:"60px 20px",background:C.surface,borderRadius:16,border:`1px solid ${C.border}`}}>
-                <p style={{fontSize:32,marginBottom:12}}>{showSaved?"\u2605":"\u{1F50D}"}</p>
-                <p style={{fontSize:15,fontWeight:600,color:C.white}}>{showSaved?"No saved ideas yet":"No matches"}</p>
-                <p style={{fontSize:13,color:C.textMuted,marginTop:6,maxWidth:300,marginLeft:"auto",marginRight:"auto"}}>{showSaved?"Star any idea card to build your shortlist.":"Broaden your filters or lower the min score."}</p>
-                <button onClick={clear} style={{marginTop:16,padding:"10px 24px",borderRadius:10,border:`1px solid ${C.border}`,background:"transparent",color:C.accent,fontSize:13,fontWeight:600,cursor:"pointer"}}>Reset</button>
-              </div>
-            )}
-
-            {filtered.map((post,i)=>{
-              const tier=getTier(post.validationScore);
-              const exp=expandedId===post.id;
-              const sv=saved.has(post.id);
-              return (
-                <div key={post.id} onClick={()=>setExpandedId(exp?null:post.id)} style={{
-                  background:exp?C.surfaceRaised:C.surface,border:`1px solid ${exp?C.accent+"44":C.border}`,
-                  borderRadius:14,marginBottom:8,cursor:"pointer",transition:"all 0.2s ease",overflow:"hidden",
-                  opacity:mounted?1:0,transform:mounted?"translateY(0)":"translateY(12px)",
-                  transitionDelay:`${Math.min(i*25,300)}ms`,
-                }}>
-                  <div style={{padding:"18px 22px",display:"flex",gap:18,alignItems:"flex-start"}}>
-                    <ScoreRing score={post.validationScore} />
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6,flexWrap:"wrap"}}>
-                        <span style={{fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:6,background:tier.bg,color:tier.color,letterSpacing:"0.05em",textTransform:"uppercase"}}>{tier.label}</span>
-                        <span style={{fontSize:11,color:C.accent,fontWeight:600}}>{post.subreddit}</span>
-                        <span style={{fontSize:11,color:C.textMuted}}>{relDate(post.date)}</span>
-                        {!post.hasCompetitors&&<span style={{fontSize:9,fontWeight:700,padding:"2px 8px",borderRadius:5,background:"rgba(6,214,160,0.1)",color:C.accent2}}>BLUE OCEAN</span>}
-                      </div>
-                      <h3 style={{fontSize:15,fontWeight:600,color:C.white,lineHeight:1.45,marginBottom:8}}>{post.title}</h3>
-                      <div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
-                        <span style={{fontSize:12,color:C.textSoft}}>{"\u25B2"} {fmt(post.upvotes)}</span>
-                        <span style={{fontSize:12,color:C.textSoft}}>{"\u{1F4AC}"} {post.comments}</span>
-                        <span style={{fontSize:11,padding:"3px 10px",borderRadius:6,background:C.accentSoft,color:C.accent,fontWeight:600}}>{CLUSTER_MAP[post.cluster]?.icon||""} {post.cluster}</span>
-                        <span style={{fontSize:11,color:C.textMuted,fontStyle:"italic"}}>"{post.keywordMatch}"</span>
-                      </div>
-                    </div>
-                    <button onClick={e=>toggleSave(post.id,e)} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",color:sv?C.warm:C.textMuted,transition:"all 0.15s",transform:sv?"scale(1.1)":"scale(1)",flexShrink:0,marginTop:4}}>
-                      {sv?"\u2605":"\u2606"}
-                    </button>
-                  </div>
-                  {exp&&(
-                    <div style={{padding:"0 22px 20px",borderTop:`1px solid ${C.border}`,marginTop:0,paddingTop:16,animation:"fadeUp 0.2s ease"}}>
-                      {post.snippet&&<p style={{fontSize:13,color:C.textSoft,lineHeight:1.7,marginBottom:14,borderLeft:`3px solid ${C.textMuted}`,paddingLeft:14,fontStyle:"italic"}}>{post.snippet}</p>}
-                      <a href={post.url} target="_blank" rel="noopener" style={{fontSize:12,color:C.accent,fontWeight:600,display:"inline-block",marginBottom:16}} onClick={e=>e.stopPropagation()}>View on Reddit &rarr;</a>
-                      <div className="rmi-detail-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
-                        {[{l:"Sentiment",v:Math.round(post.sentimentPositive*100)+"%",c:post.sentimentPositive>=0.8?C.mild:C.warm,s:"positive"},{l:"Competition",v:post.hasCompetitors?"Exists":"None",c:post.hasCompetitors?C.warm:C.accent2,s:post.hasCompetitors?"gap opportunity":"blue ocean"},{l:"Signal",v:KEYWORD_CATEGORIES[post.category]?.icon||"\u{1F4A1}",c:C.accent,s:post.category.replace(" Signals","")}].map((d,i)=>(
-                          <div key={i} style={{background:C.bg,borderRadius:10,padding:"12px 14px",textAlign:"center"}}>
-                            <p style={{fontSize:9,color:C.textMuted,letterSpacing:"0.1em",fontWeight:700,textTransform:"uppercase"}}>{d.l}</p>
-                            <p style={{fontSize:d.l==="Signal"?20:18,fontWeight:800,color:d.c,marginTop:6}}>{d.v}</p>
-                            <p style={{fontSize:10,color:C.textMuted,marginTop:2}}>{d.s}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
+        {/* ═══ DASHBOARD ═══ */}
+        {!loading && view==="dashboard" && <div style={{animation:"fadeUp 0.4s ease"}}>
+          {/* KPIs */}
+          <div className="rmi-kg" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:12,marginBottom:20}}>
+            {[{l:"Hot Ideas",v:ins.hot,s:"Score \u2265 75",c:C.hot},{l:"Avg Score",v:ins.avg,s:posts.length+" posts",c:C.ac},{l:"Blue Ocean",v:ins.blue,s:"No competitors",c:C.a2},{l:"Top Cluster",v:ins.top,s:"Highest avg",c:C.warm,sm:true}].map(function(k,i){
+              return <div key={i} style={{background:C.sf,border:"1px solid "+C.bd,borderRadius:14,padding:"20px 22px",position:"relative",overflow:"hidden"}}>
+                <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,"+k.c+",transparent)"}}/>
+                <p style={{fontSize:11,color:C.tm,fontWeight:600,letterSpacing:"0.06em",textTransform:"uppercase"}}>{k.l}</p>
+                <p style={{fontSize:k.sm?18:34,fontWeight:800,color:C.wh,marginTop:8,lineHeight:1}}>{k.v}</p>
+                <p style={{fontSize:11,color:C.tm,marginTop:4}}>{k.s}</p>
+              </div>;
             })}
           </div>
-        )}
 
-        {/* ═══════ KEYWORDS ═══════ */}
-        {!loading && view==="keywords" && (
-          <div style={{animation:"fadeUp 0.4s ease"}}>
-            <h2 style={{fontSize:22,fontWeight:800,color:C.white,letterSpacing:"-0.03em",marginBottom:6}}>Keyword Strategy</h2>
-            <p style={{fontSize:13,color:C.textSoft,marginBottom:24}}>Click any keyword to filter the dashboard.</p>
-            {Object.entries(KEYWORD_CATEGORIES).map(([cat,data])=>{
-              const cp=posts.filter(p=>p.category===cat);
-              const avg=cp.length?Math.round(cp.reduce((s,p)=>s+p.validationScore,0)/cp.length):0;
-              return (
-                <div key={cat} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:14,padding:"22px 24px",marginBottom:10}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-                    <div style={{display:"flex",gap:12,alignItems:"center"}}>
-                      <span style={{fontSize:24}}>{data.icon}</span>
-                      <div><p style={{fontSize:15,fontWeight:700,color:C.white}}>{cat}</p><p style={{fontSize:12,color:C.textMuted,marginTop:2}}>{data.desc}</p></div>
-                    </div>
-                    <div style={{textAlign:"right"}}>
-                      <ScoreRing score={avg} size={44} stroke={3}/>
-                      <p style={{fontSize:10,color:C.textMuted,marginTop:2}}>{cp.length} posts</p>
-                    </div>
-                  </div>
-                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                    {data.keywords.map(kw=>(
-                      <button key={kw} onClick={()=>{set("category",cat);setView("dashboard");}} style={{fontSize:12,padding:"7px 14px",borderRadius:10,cursor:"pointer",fontFamily:font,background:C.accentSoft,color:C.accent,border:`1px solid rgba(99,102,241,0.15)`,fontWeight:500,transition:"all 0.15s"}}>
-                        &ldquo;{kw}&rdquo;
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+          {/* Cluster Chart */}
+          {cStats.length>0 && <div style={{background:C.sf,border:"1px solid "+C.bd,borderRadius:14,padding:"18px 22px",marginBottom:16}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+              <p style={{fontSize:12,fontWeight:700,color:C.ts,letterSpacing:"0.04em"}}>Clusters by Avg Score (click to filter)</p>
+              <button onClick={function(){setShowGuide(true);}} style={{background:C.as,border:"none",borderRadius:8,padding:"5px 12px",color:C.ac,fontSize:11,fontWeight:600,cursor:"pointer"}}>How scoring works</button>
+            </div>
+            <MiniBar data={cStats} activeCluster={filters.cluster} onClickBar={function(name){sf("cluster",filters.cluster===name?"All":name);}}/>
+          </div>}
 
-        {/* ═══════ SOURCES ═══════ */}
-        {!loading && view==="sources" && (
-          <div style={{animation:"fadeUp 0.4s ease"}}>
-            <h2 style={{fontSize:22,fontWeight:800,color:C.white,letterSpacing:"-0.03em",marginBottom:6}}>Target Subreddits</h2>
-            <p style={{fontSize:13,color:C.textSoft,marginBottom:24}}>Click to filter dashboard by source.</p>
-            <div className="rmi-sub-grid" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10}}>
-              {SUBREDDITS.map(sub=>{
-                const sp=posts.filter(p=>p.subreddit===sub.display);
-                const avg=sp.length?Math.round(sp.reduce((s,p)=>s+p.validationScore,0)/sp.length):0;
-                return (
-                  <button key={sub.name} onClick={()=>{set("subreddit",sub.display);setView("dashboard");}} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:14,padding:20,cursor:"pointer",fontFamily:font,textAlign:"left",position:"relative",overflow:"hidden",transition:"all 0.15s"}}
-                    onMouseEnter={e=>e.currentTarget.style.borderColor=C.accent}
-                    onMouseLeave={e=>e.currentTarget.style.borderColor=C.border}>
-                    <div style={{position:"absolute",bottom:0,left:0,height:3,width:sub.weight*100+"%",background:`linear-gradient(90deg,${C.accent},${C.accent2})`,borderRadius:"0 2px 0 0"}}/>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                      <div>
-                        <p style={{fontSize:16,fontWeight:700,color:C.white}}>{sub.display}</p>
-                        <p style={{fontSize:12,color:C.textSoft,marginTop:4,lineHeight:1.5}}>{sub.focus}</p>
-                        <p style={{fontSize:11,color:C.textMuted,marginTop:6}}>{sub.members} members</p>
-                      </div>
-                      <div style={{textAlign:"right"}}>
-                        <p style={{fontSize:24,fontWeight:800,color:C.accent}}>{Math.round(sub.weight*100)}%</p>
-                        <p style={{fontSize:9,color:C.textMuted,letterSpacing:"0.05em"}}>QUALITY</p>
-                        {sp.length>0&&<p style={{fontSize:11,color:C.textMuted,marginTop:4}}>{sp.length} posts</p>}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
+          {/* Filters */}
+          <div className="rmi-fb" style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",marginBottom:16,padding:"12px 18px",background:C.sf,borderRadius:12,border:"1px solid "+C.bd}}>
+            <input type="text" placeholder="Search ideas..." value={filters.search} onChange={function(e){sf("search",e.target.value);}} style={{padding:"8px 14px",borderRadius:10,border:"1px solid "+C.bd,background:C.bg,color:C.tx,fontSize:13,width:200,outline:"none"}}/>
+            <select value={filters.cluster} onChange={function(e){sf("cluster",e.target.value);}} style={selSt}><option value="All">All Clusters</option>{cStats.map(function(c){return <option key={c.name} value={c.name}>{c.name}</option>;})}</select>
+            <select value={filters.category} onChange={function(e){sf("category",e.target.value);}} style={selSt}><option value="All">All Signals</option>{Object.keys(KW_CATS).map(function(c){return <option key={c} value={c}>{c}</option>;})}</select>
+            <select value={filters.subreddit} onChange={function(e){sf("subreddit",e.target.value);}} style={selSt}><option value="All">All Subreddits</option>{SUBS.map(function(s){return <option key={s.display} value={s.display}>{s.display}</option>;})}</select>
+            <select value={filters.sort} onChange={function(e){sf("sort",e.target.value);}} style={selSt}><option value="validationScore">By Score</option><option value="upvotes">By Upvotes</option><option value="comments">By Comments</option><option value="date">By Date</option></select>
+            <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:11,color:C.tm,fontWeight:600}}>Min</span><input type="range" min={0} max={90} step={5} value={filters.minScore} onChange={function(e){sf("minScore",+e.target.value);}} style={{width:80,accentColor:C.ac}}/><span style={{fontSize:12,fontWeight:700,color:C.wh,minWidth:20}}>{filters.minScore}</span></div>
+            <div className="rmi-fr" style={{marginLeft:"auto",display:"flex",gap:6}}>
+              <button onClick={function(){setShowSaved(!showSaved);}} style={{padding:"7px 14px",borderRadius:20,border:"1px solid "+(showSaved?C.warm:C.bd),background:showSaved?"rgba(245,158,11,0.1)":"transparent",color:showSaved?C.warm:C.tm,fontSize:12,fontWeight:600,cursor:"pointer"}}>{"\u2605"} {saved.size} Saved</button>
+              {(hasF||showSaved)&&<button onClick={clr} style={{padding:"7px 14px",borderRadius:20,border:"1px solid "+C.bd,background:"transparent",color:C.hot,fontSize:12,fontWeight:600,cursor:"pointer"}}>Clear</button>}
             </div>
           </div>
-        )}
+
+          <p style={{fontSize:12,color:C.tm,marginBottom:12}}>{filtered.length} idea{filtered.length!==1?"s":""}{hasF?" (filtered)":""}</p>
+
+          {filtered.length===0 && <div style={{textAlign:"center",padding:"60px 20px",background:C.sf,borderRadius:16,border:"1px solid "+C.bd}}>
+            <p style={{fontSize:32,marginBottom:12}}>{showSaved?"\u2605":"\uD83D\uDD0D"}</p>
+            <p style={{fontSize:15,fontWeight:600,color:C.wh}}>{showSaved?"No saved ideas yet":"No matches"}</p>
+            <p style={{fontSize:13,color:C.tm,marginTop:6}}>{showSaved?"Star any idea to save it.":"Try broadening filters."}</p>
+            <button onClick={clr} style={{marginTop:16,padding:"10px 24px",borderRadius:10,border:"1px solid "+C.bd,background:"transparent",color:C.ac,fontSize:13,fontWeight:600,cursor:"pointer"}}>Reset</button>
+          </div>}
+
+          {filtered.map(function(post,i){
+            var tier=getTier(post.validationScore);
+            var exp=expId===post.id;
+            var sv=saved.has(post.id);
+            return <div key={post.id} onClick={function(){setExpId(exp?null:post.id);}} style={{background:exp?C.sfr:C.sf,border:"1px solid "+(exp?C.ac+"44":C.bd),borderRadius:14,marginBottom:8,cursor:"pointer",transition:"all 0.2s",overflow:"hidden",opacity:mounted?1:0,transform:mounted?"translateY(0)":"translateY(12px)",transitionDelay:Math.min(i*25,300)+"ms"}}>
+              <div style={{padding:"18px 22px",display:"flex",gap:18,alignItems:"flex-start"}}>
+                <ScoreRing score={post.validationScore}/>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6,flexWrap:"wrap"}}>
+                    <span style={{fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:6,background:tier.bg,color:tier.color,letterSpacing:"0.05em",textTransform:"uppercase"}}>{tier.label}</span>
+                    <span style={{fontSize:11,color:C.ac,fontWeight:600}}>{post.subreddit}</span>
+                    <span style={{fontSize:11,color:C.tm}}>{relDate(post.date)}</span>
+                    {!post.hasCompetitors&&<span style={{fontSize:9,fontWeight:700,padding:"2px 8px",borderRadius:5,background:"rgba(6,214,160,0.1)",color:C.a2}}>BLUE OCEAN</span>}
+                  </div>
+                  <h3 style={{fontSize:15,fontWeight:600,color:C.wh,lineHeight:1.45,marginBottom:8}}>{post.title}</h3>
+                  <div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
+                    <span style={{fontSize:12,color:C.ts}}>{"\u25B2"} {fmt(post.upvotes)}</span>
+                    <span style={{fontSize:12,color:C.ts}}>{"\uD83D\uDCAC"} {post.comments}</span>
+                    <span style={{fontSize:11,padding:"3px 10px",borderRadius:6,background:C.as,color:C.ac,fontWeight:600}}>{(CMAP[post.cluster]||{}).icon||""} {post.cluster}</span>
+                    <span style={{fontSize:11,color:C.tm,fontStyle:"italic"}}>"{post.keywordMatch}"</span>
+                  </div>
+                </div>
+                <button onClick={function(e){tgSave(post.id,e);}} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",color:sv?C.warm:C.tm,transition:"all 0.15s",transform:sv?"scale(1.1)":"scale(1)",flexShrink:0,marginTop:4}}>{sv?"\u2605":"\u2606"}</button>
+              </div>
+              {exp && <div style={{padding:"0 22px 20px",borderTop:"1px solid "+C.bd,paddingTop:16,animation:"fadeUp 0.2s ease"}}>
+                {post.snippet&&<p style={{fontSize:13,color:C.ts,lineHeight:1.7,marginBottom:14,borderLeft:"3px solid "+C.tm,paddingLeft:14,fontStyle:"italic"}}>{post.snippet}</p>}
+                <a href={post.url} target="_blank" rel="noopener" style={{fontSize:12,color:C.ac,fontWeight:600,display:"inline-block",marginBottom:16}} onClick={function(e){e.stopPropagation();}}>View on Reddit &rarr;</a>
+                <div className="rmi-dg" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+                  {[{l:"Sentiment",v:Math.round(post.sentimentPositive*100)+"%",c:post.sentimentPositive>=0.8?C.mild:C.warm,s:"positive"},{l:"Competition",v:post.hasCompetitors?"Exists":"None",c:post.hasCompetitors?C.warm:C.a2,s:post.hasCompetitors?"gap opportunity":"blue ocean"},{l:"Signal",v:(KW_CATS[post.category]||{}).icon||"\uD83D\uDCA1",c:C.ac,s:post.category.replace(" Signals","")}].map(function(d,i){
+                    return <div key={i} style={{background:C.bg,borderRadius:10,padding:"12px 14px",textAlign:"center"}}>
+                      <p style={{fontSize:9,color:C.tm,letterSpacing:"0.1em",fontWeight:700,textTransform:"uppercase"}}>{d.l}</p>
+                      <p style={{fontSize:d.l==="Signal"?20:18,fontWeight:800,color:d.c,marginTop:6}}>{d.v}</p>
+                      <p style={{fontSize:10,color:C.tm,marginTop:2}}>{d.s}</p>
+                    </div>;
+                  })}
+                </div>
+              </div>}
+            </div>;
+          })}
+        </div>}
+
+        {/* ═══ KEYWORDS ═══ */}
+        {!loading && view==="keywords" && <div style={{animation:"fadeUp 0.4s ease"}}>
+          <h2 style={{fontSize:22,fontWeight:800,color:C.wh,marginBottom:6}}>Keyword Strategy</h2>
+          <p style={{fontSize:13,color:C.ts,marginBottom:24}}>Click any keyword to filter the dashboard.</p>
+          {Object.entries(KW_CATS).map(function(entry){
+            var cat=entry[0],data=entry[1];
+            var cp=posts.filter(function(p){return p.category===cat;});
+            var avg=cp.length?Math.round(cp.reduce(function(s,p){return s+p.validationScore;},0)/cp.length):0;
+            return <div key={cat} style={{background:C.sf,border:"1px solid "+C.bd,borderRadius:14,padding:"22px 24px",marginBottom:10}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+                <div style={{display:"flex",gap:12,alignItems:"center"}}>
+                  <span style={{fontSize:24}}>{data.icon}</span>
+                  <div><p style={{fontSize:15,fontWeight:700,color:C.wh}}>{cat}</p><p style={{fontSize:12,color:C.tm,marginTop:2}}>{data.desc}</p></div>
+                </div>
+                <div style={{textAlign:"right"}}><ScoreRing score={avg} size={44} stroke={3}/><p style={{fontSize:10,color:C.tm,marginTop:2}}>{cp.length} posts</p></div>
+              </div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                {data.keywords.map(function(kw){return <button key={kw} onClick={function(){sf("category",cat);setView("dashboard");}} style={{fontSize:12,padding:"7px 14px",borderRadius:10,cursor:"pointer",background:C.as,color:C.ac,border:"1px solid rgba(99,102,241,0.15)",fontWeight:500,transition:"all 0.15s"}}>{"\u201C"+kw+"\u201D"}</button>;})}
+              </div>
+            </div>;
+          })}
+        </div>}
+
+        {/* ═══ SOURCES ═══ */}
+        {!loading && view==="sources" && <div style={{animation:"fadeUp 0.4s ease"}}>
+          <h2 style={{fontSize:22,fontWeight:800,color:C.wh,marginBottom:6}}>Target Subreddits</h2>
+          <p style={{fontSize:13,color:C.ts,marginBottom:24}}>Click to filter dashboard by source.</p>
+          <div className="rmi-sg" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10}}>
+            {SUBS.map(function(sub){
+              var sp=posts.filter(function(p){return p.subreddit===sub.display;});
+              var avg=sp.length?Math.round(sp.reduce(function(s,p){return s+p.validationScore;},0)/sp.length):0;
+              return <button key={sub.name} className="rmi-sub" onClick={function(){sf("subreddit",sub.display);setView("dashboard");}} style={{background:C.sf,border:"1px solid "+C.bd,borderRadius:14,padding:20,cursor:"pointer",textAlign:"left",position:"relative",overflow:"hidden",transition:"all 0.15s"}}
+                onMouseEnter={function(e){e.currentTarget.style.borderColor=C.ac;}}
+                onMouseLeave={function(e){e.currentTarget.style.borderColor=C.bd;}}>
+                <div style={{position:"absolute",bottom:0,left:0,height:3,width:sub.weight*100+"%",background:"linear-gradient(90deg,"+C.ac+","+C.a2+")",borderRadius:"0 2px 0 0"}}/>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                  <div><p style={{fontSize:16,fontWeight:700,color:C.wh}}>{sub.display}</p><p style={{fontSize:12,color:C.ts,marginTop:4}}>{sub.focus}</p><p style={{fontSize:11,color:C.tm,marginTop:6}}>{sub.members} members</p></div>
+                  <div style={{textAlign:"right"}}><p style={{fontSize:24,fontWeight:800,color:C.ac}}>{Math.round(sub.weight*100)}%</p><p style={{fontSize:9,color:C.tm}}>QUALITY</p>{sp.length>0&&<p style={{fontSize:11,color:C.tm,marginTop:4}}>{sp.length} posts</p>}</div>
+                </div>
+              </button>;
+            })}
+          </div>
+        </div>}
       </main>
 
-      <footer style={{padding:"20px 28px",borderTop:`1px solid ${C.border}`,marginTop:28}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",maxWidth:1360,margin:"0 auto",fontSize:11,color:C.textMuted}}>
-          <span>v3.0 &middot; {posts.length} ideas indexed{meta?.errors>0?` \u00B7 ${meta.errors} errors`:""}</span>
-          <button onClick={()=>setShowGuide(true)} style={{background:"none",border:"none",color:C.textMuted,fontSize:11,cursor:"pointer",fontFamily:font,textDecoration:"underline"}}>Scoring methodology</button>
+      <footer style={{padding:"20px 28px",borderTop:"1px solid "+C.bd,marginTop:28}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",maxWidth:1360,margin:"0 auto",fontSize:11,color:C.tm}}>
+          <span>v3.0 &middot; {posts.length} ideas indexed{meta&&meta.errors>0?" \u00B7 "+meta.errors+" errors":""}</span>
+          <button onClick={function(){setShowGuide(true);}} style={{background:"none",border:"none",color:C.tm,fontSize:11,cursor:"pointer",textDecoration:"underline"}}>Scoring methodology</button>
         </div>
       </footer>
     </div>
   );
 }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
-  </script>
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
 </body>
 </html>
