@@ -244,9 +244,9 @@
 
     let workingProxyIndex = null; // Cache which proxy works
 
-    async function fetchRedditViaProxy(keyword, sort, time) {
-      const params = new URLSearchParams({ q: keyword, sort, t: time, limit: "20", type: "link" });
-      const redditUrl = `https://www.reddit.com/search.json?${params}`;
+    async function fetchRedditViaProxy(keyword, sort, time, subreddit) {
+      const params = new URLSearchParams({ q: keyword, sort, t: time, limit: "20", type: "link", restrict_sr: "true" });
+      const redditUrl = `https://www.reddit.com/r/${subreddit}/search.json?${params}`;
 
       // If we already found a working method, use it
       if (workingProxyIndex !== null) {
@@ -351,41 +351,106 @@
       const toggleSave = useCallback((id, e) => { e.stopPropagation(); setSaved(s => { const n = new Set(s); n.has(id)?n.delete(id):n.add(id); return n; }); }, []);
 
       // ─── FETCH PIPELINE ─────────────────────────────────────────────
+      // Searches keyword × subreddit combinations for targeted results.
+      // Only searches high-value subreddits with high-value keywords.
+
+      const RELEVANCE_TERMS = [
+        "startup","saas","business","idea","build","app","tool","software",
+        "product","service","platform","automate","solution","market","customer",
+        "revenue","monetize","pain point","problem","niche","mvp","launch",
+        "founder","entrepreneur","side project","indie","freelance","agency",
+        "ai ","api","no-code","low-code","workflow","dashboard","crm","fintech",
+      ];
+
+      function isRelevantPost(title, selftext) {
+        const text = `${title} ${selftext || ""}`.toLowerCase();
+        let matches = 0;
+        for (const term of RELEVANCE_TERMS) {
+          if (text.includes(term)) matches++;
+        }
+        return matches >= 1;
+      }
+
       const doFetch = useCallback(async () => {
         setLoading(true);
         setFetchError(null);
 
-        // Build keyword list
-        const allKeywords = [];
-        for (const [cat, data] of Object.entries(KEYWORD_CATEGORIES)) {
-          for (const kw of data.keywords) {
-            allKeywords.push({ keyword: kw, category: cat });
+        // Build search combinations: top keywords × top subreddits
+        // We pick the best keywords and search across key subreddits
+        const topKeywords = [
+          { keyword: "startup idea", category: "Direct Idea Signals" },
+          { keyword: "business idea", category: "Direct Idea Signals" },
+          { keyword: "saas idea", category: "Direct Idea Signals" },
+          { keyword: "app idea", category: "Direct Idea Signals" },
+          { keyword: "ai startup", category: "Direct Idea Signals" },
+          { keyword: "micro saas", category: "Direct Idea Signals" },
+          { keyword: "someone should build", category: "Problem Signals" },
+          { keyword: "I wish there was", category: "Problem Signals" },
+          { keyword: "I'd pay for", category: "Problem Signals" },
+          { keyword: "validate my idea", category: "Validation Signals" },
+          { keyword: "roast my startup", category: "Validation Signals" },
+          { keyword: "alternative to", category: "Market Gap Signals" },
+        ];
+
+        // Key subreddits to search within
+        const targetSubs = ["startups", "SaaS", "Entrepreneur", "indiehackers", "smallbusiness", "artificial", "webdev", "nocode", "ChatGPT", "digitalnomad"];
+
+        // Build smart search pairs — each keyword searches across a few subreddits
+        const searchPairs = [];
+        for (const kw of topKeywords) {
+          // Direct idea keywords → search broad subreddits
+          if (kw.category === "Direct Idea Signals") {
+            for (const sub of ["startups", "SaaS", "Entrepreneur", "indiehackers"]) {
+              searchPairs.push({ ...kw, subreddit: sub });
+            }
+          }
+          // Problem signals → search where people complain
+          else if (kw.category === "Problem Signals") {
+            for (const sub of ["startups", "smallbusiness", "Entrepreneur", "SaaS", "nocode"]) {
+              searchPairs.push({ ...kw, subreddit: sub });
+            }
+          }
+          // Validation → where founders post
+          else if (kw.category === "Validation Signals") {
+            for (const sub of ["startups", "indiehackers", "SaaS"]) {
+              searchPairs.push({ ...kw, subreddit: sub });
+            }
+          }
+          // Market gap → tech-focused subs
+          else {
+            for (const sub of ["webdev", "SaaS", "startups", "nocode"]) {
+              searchPairs.push({ ...kw, subreddit: sub });
+            }
           }
         }
 
-        setProgress({ done: 0, total: allKeywords.length, current: "" });
+        setProgress({ done: 0, total: searchPairs.length, current: "" });
 
         const allPosts = new Map();
         let errors = 0;
         let completed = 0;
 
-        // Fetch in small batches of 3 (parallel but controlled)
+        // Fetch in batches of 3
         const batchSize = 3;
-        for (let i = 0; i < allKeywords.length; i += batchSize) {
-          const batch = allKeywords.slice(i, i + batchSize);
+        for (let i = 0; i < searchPairs.length; i += batchSize) {
+          const batch = searchPairs.slice(i, i + batchSize);
 
-          const promises = batch.map(async ({ keyword, category }) => {
+          const promises = batch.map(async ({ keyword, category, subreddit }) => {
             try {
-              setProgress(p => ({ ...p, current: keyword }));
-              const data = await fetchRedditViaProxy(keyword, "top", "month");
+              setProgress(p => ({ ...p, current: `"${keyword}" in r/${subreddit}` }));
+              const data = await fetchRedditViaProxy(keyword, "top", "month", subreddit);
               const children = data?.data?.children || [];
 
               for (const raw of children) {
                 if (raw.kind !== "t3" || allPosts.has(raw.data.id)) continue;
+
+                // RELEVANCE FILTER: skip posts that aren't about business/tech/startups
+                if (!isRelevantPost(raw.data.title, raw.data.selftext)) continue;
+
                 allPosts.set(raw.data.id, processRawPost(raw.data, keyword, category));
               }
             } catch (err) {
-              console.warn(`Failed: "${keyword}":`, err.message);
+              console.warn(`Failed: "${keyword}" in r/${subreddit}:`, err.message);
               errors++;
             }
           });
@@ -394,9 +459,9 @@
           completed += batch.length;
           setProgress(p => ({ ...p, done: completed }));
 
-          // Small delay between batches to respect rate limits
-          if (i + batchSize < allKeywords.length) {
-            await new Promise(r => setTimeout(r, 800));
+          // Delay between batches
+          if (i + batchSize < searchPairs.length) {
+            await new Promise(r => setTimeout(r, 600));
           }
         }
 
@@ -404,15 +469,15 @@
           .sort((a, b) => b.validationScore - a.validationScore);
 
         if (sorted.length === 0 && errors > 0) {
-          setFetchError(`Searched ${allKeywords.length} keywords but couldn't reach Reddit. Try refreshing in a minute — Reddit may be rate-limiting. If this persists, try running locally (npm start).`);
+          setFetchError(`Couldn't reach Reddit. Try refreshing in a minute.`);
         } else if (sorted.length === 0) {
-          setFetchError("No posts found. Reddit may be rate-limiting. Wait a minute and try refreshing.");
+          setFetchError("No relevant posts found. Try refreshing.");
         }
 
         setPosts(sorted);
         setMeta({
           totalFetched: sorted.length,
-          keywordsSearched: allKeywords.length,
+          keywordsSearched: searchPairs.length,
           errors,
           fetchedAt: new Date().toISOString(),
           sort: "top",
